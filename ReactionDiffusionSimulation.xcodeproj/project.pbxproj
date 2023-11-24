@@ -1,0 +1,586 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CA7E29AE2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29AD2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift */; };
+		CA7E29B02B05341A00ED378D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29AF2B05341A00ED378D /* ContentView.swift */; };
+		CA7E29B22B05341C00ED378D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA7E29B12B05341C00ED378D /* Assets.xcassets */; };
+		CA7E29B52B05341C00ED378D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA7E29B42B05341C00ED378D /* Preview Assets.xcassets */; };
+		CA7E29C02B05341C00ED378D /* ReactionDiffusionSimulationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29BF2B05341C00ED378D /* ReactionDiffusionSimulationTests.swift */; };
+		CA7E29CA2B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29C92B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift */; };
+		CA7E29CC2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29CB2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CA7E29BC2B05341C00ED378D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CA7E29A22B05341A00ED378D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CA7E29A92B05341A00ED378D;
+			remoteInfo = ReactionDiffusionSimulation;
+		};
+		CA7E29C62B05341C00ED378D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CA7E29A22B05341A00ED378D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CA7E29A92B05341A00ED378D;
+			remoteInfo = ReactionDiffusionSimulation;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		CA7E29AA2B05341A00ED378D /* ReactionDiffusionSimulation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReactionDiffusionSimulation.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA7E29AD2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDiffusionSimulationApp.swift; sourceTree = "<group>"; };
+		CA7E29AF2B05341A00ED378D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CA7E29B12B05341C00ED378D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CA7E29B42B05341C00ED378D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		CA7E29B62B05341C00ED378D /* ReactionDiffusionSimulation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ReactionDiffusionSimulation.entitlements; sourceTree = "<group>"; };
+		CA7E29BB2B05341C00ED378D /* ReactionDiffusionSimulationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactionDiffusionSimulationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA7E29BF2B05341C00ED378D /* ReactionDiffusionSimulationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDiffusionSimulationTests.swift; sourceTree = "<group>"; };
+		CA7E29C52B05341C00ED378D /* ReactionDiffusionSimulationUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactionDiffusionSimulationUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA7E29C92B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDiffusionSimulationUITests.swift; sourceTree = "<group>"; };
+		CA7E29CB2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDiffusionSimulationUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CA7E29A72B05341A00ED378D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA7E29B82B05341C00ED378D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA7E29C22B05341C00ED378D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CA7E29A12B05341A00ED378D = {
+			isa = PBXGroup;
+			children = (
+				CA7E29AC2B05341A00ED378D /* ReactionDiffusionSimulation */,
+				CA7E29BE2B05341C00ED378D /* ReactionDiffusionSimulationTests */,
+				CA7E29C82B05341C00ED378D /* ReactionDiffusionSimulationUITests */,
+				CA7E29AB2B05341A00ED378D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CA7E29AB2B05341A00ED378D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CA7E29AA2B05341A00ED378D /* ReactionDiffusionSimulation.app */,
+				CA7E29BB2B05341C00ED378D /* ReactionDiffusionSimulationTests.xctest */,
+				CA7E29C52B05341C00ED378D /* ReactionDiffusionSimulationUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CA7E29AC2B05341A00ED378D /* ReactionDiffusionSimulation */ = {
+			isa = PBXGroup;
+			children = (
+				CA7E29AD2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift */,
+				CA7E29AF2B05341A00ED378D /* ContentView.swift */,
+				CA7E29B12B05341C00ED378D /* Assets.xcassets */,
+				CA7E29B62B05341C00ED378D /* ReactionDiffusionSimulation.entitlements */,
+				CA7E29B32B05341C00ED378D /* Preview Content */,
+			);
+			path = ReactionDiffusionSimulation;
+			sourceTree = "<group>";
+		};
+		CA7E29B32B05341C00ED378D /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				CA7E29B42B05341C00ED378D /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		CA7E29BE2B05341C00ED378D /* ReactionDiffusionSimulationTests */ = {
+			isa = PBXGroup;
+			children = (
+				CA7E29BF2B05341C00ED378D /* ReactionDiffusionSimulationTests.swift */,
+			);
+			path = ReactionDiffusionSimulationTests;
+			sourceTree = "<group>";
+		};
+		CA7E29C82B05341C00ED378D /* ReactionDiffusionSimulationUITests */ = {
+			isa = PBXGroup;
+			children = (
+				CA7E29C92B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift */,
+				CA7E29CB2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift */,
+			);
+			path = ReactionDiffusionSimulationUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CA7E29A92B05341A00ED378D /* ReactionDiffusionSimulation */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA7E29CF2B05341C00ED378D /* Build configuration list for PBXNativeTarget "ReactionDiffusionSimulation" */;
+			buildPhases = (
+				CA7E29A62B05341A00ED378D /* Sources */,
+				CA7E29A72B05341A00ED378D /* Frameworks */,
+				CA7E29A82B05341A00ED378D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReactionDiffusionSimulation;
+			productName = ReactionDiffusionSimulation;
+			productReference = CA7E29AA2B05341A00ED378D /* ReactionDiffusionSimulation.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CA7E29BA2B05341C00ED378D /* ReactionDiffusionSimulationTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA7E29D22B05341C00ED378D /* Build configuration list for PBXNativeTarget "ReactionDiffusionSimulationTests" */;
+			buildPhases = (
+				CA7E29B72B05341C00ED378D /* Sources */,
+				CA7E29B82B05341C00ED378D /* Frameworks */,
+				CA7E29B92B05341C00ED378D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CA7E29BD2B05341C00ED378D /* PBXTargetDependency */,
+			);
+			name = ReactionDiffusionSimulationTests;
+			productName = ReactionDiffusionSimulationTests;
+			productReference = CA7E29BB2B05341C00ED378D /* ReactionDiffusionSimulationTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CA7E29C42B05341C00ED378D /* ReactionDiffusionSimulationUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA7E29D52B05341C00ED378D /* Build configuration list for PBXNativeTarget "ReactionDiffusionSimulationUITests" */;
+			buildPhases = (
+				CA7E29C12B05341C00ED378D /* Sources */,
+				CA7E29C22B05341C00ED378D /* Frameworks */,
+				CA7E29C32B05341C00ED378D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CA7E29C72B05341C00ED378D /* PBXTargetDependency */,
+			);
+			name = ReactionDiffusionSimulationUITests;
+			productName = ReactionDiffusionSimulationUITests;
+			productReference = CA7E29C52B05341C00ED378D /* ReactionDiffusionSimulationUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CA7E29A22B05341A00ED378D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					CA7E29A92B05341A00ED378D = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					CA7E29BA2B05341C00ED378D = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = CA7E29A92B05341A00ED378D;
+					};
+					CA7E29C42B05341C00ED378D = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = CA7E29A92B05341A00ED378D;
+					};
+				};
+			};
+			buildConfigurationList = CA7E29A52B05341A00ED378D /* Build configuration list for PBXProject "ReactionDiffusionSimulation" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CA7E29A12B05341A00ED378D;
+			productRefGroup = CA7E29AB2B05341A00ED378D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CA7E29A92B05341A00ED378D /* ReactionDiffusionSimulation */,
+				CA7E29BA2B05341C00ED378D /* ReactionDiffusionSimulationTests */,
+				CA7E29C42B05341C00ED378D /* ReactionDiffusionSimulationUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CA7E29A82B05341A00ED378D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA7E29B52B05341C00ED378D /* Preview Assets.xcassets in Resources */,
+				CA7E29B22B05341C00ED378D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA7E29B92B05341C00ED378D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA7E29C32B05341C00ED378D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CA7E29A62B05341A00ED378D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA7E29B02B05341A00ED378D /* ContentView.swift in Sources */,
+				CA7E29AE2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA7E29B72B05341C00ED378D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA7E29C02B05341C00ED378D /* ReactionDiffusionSimulationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA7E29C12B05341C00ED378D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA7E29CC2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift in Sources */,
+				CA7E29CA2B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CA7E29BD2B05341C00ED378D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CA7E29A92B05341A00ED378D /* ReactionDiffusionSimulation */;
+			targetProxy = CA7E29BC2B05341C00ED378D /* PBXContainerItemProxy */;
+		};
+		CA7E29C72B05341C00ED378D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CA7E29A92B05341A00ED378D /* ReactionDiffusionSimulation */;
+			targetProxy = CA7E29C62B05341C00ED378D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		CA7E29CD2B05341C00ED378D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		CA7E29CE2B05341C00ED378D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		CA7E29D02B05341C00ED378D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ReactionDiffusionSimulation/ReactionDiffusionSimulation.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ReactionDiffusionSimulation/Preview Content\"";
+				DEVELOPMENT_TEAM = G6AH686S93;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = uk.ac.lancaster.ReactionDiffusionSimulation;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		CA7E29D12B05341C00ED378D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ReactionDiffusionSimulation/ReactionDiffusionSimulation.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ReactionDiffusionSimulation/Preview Content\"";
+				DEVELOPMENT_TEAM = G6AH686S93;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = uk.ac.lancaster.ReactionDiffusionSimulation;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		CA7E29D32B05341C00ED378D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G6AH686S93;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = uk.ac.lancaster.ReactionDiffusionSimulationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ReactionDiffusionSimulation.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ReactionDiffusionSimulation";
+			};
+			name = Debug;
+		};
+		CA7E29D42B05341C00ED378D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G6AH686S93;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = uk.ac.lancaster.ReactionDiffusionSimulationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ReactionDiffusionSimulation.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ReactionDiffusionSimulation";
+			};
+			name = Release;
+		};
+		CA7E29D62B05341C00ED378D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G6AH686S93;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = uk.ac.lancaster.ReactionDiffusionSimulationUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = ReactionDiffusionSimulation;
+			};
+			name = Debug;
+		};
+		CA7E29D72B05341C00ED378D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G6AH686S93;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = uk.ac.lancaster.ReactionDiffusionSimulationUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = ReactionDiffusionSimulation;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CA7E29A52B05341A00ED378D /* Build configuration list for PBXProject "ReactionDiffusionSimulation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA7E29CD2B05341C00ED378D /* Debug */,
+				CA7E29CE2B05341C00ED378D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CA7E29CF2B05341C00ED378D /* Build configuration list for PBXNativeTarget "ReactionDiffusionSimulation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA7E29D02B05341C00ED378D /* Debug */,
+				CA7E29D12B05341C00ED378D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CA7E29D22B05341C00ED378D /* Build configuration list for PBXNativeTarget "ReactionDiffusionSimulationTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA7E29D32B05341C00ED378D /* Debug */,
+				CA7E29D42B05341C00ED378D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CA7E29D52B05341C00ED378D /* Build configuration list for PBXNativeTarget "ReactionDiffusionSimulationUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA7E29D62B05341C00ED378D /* Debug */,
+				CA7E29D72B05341C00ED378D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CA7E29A22B05341A00ED378D /* Project object */;
+}
