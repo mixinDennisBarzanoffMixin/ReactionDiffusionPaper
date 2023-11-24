@@ -1,5 +1,6 @@
 import CoreImage
 import SwiftUI
+import AppKit
 
 
 
@@ -56,9 +57,7 @@ class ImageGenerator: ObservableObject {
 
                             let u = self.a[y][x]
                             let v = self.b[y][x]
-                            if (u.isNaN) {
-                                print("u is nan")
-                            }
+
                             let uLaplacian = self.laplacian(self.a, x: x, y: y)
    
                             let du = ((1 / eps) * (u - (u * u) - ((f * v) + phi) * ((u - q) / (u + q))) + Du * uLaplacian)
@@ -66,9 +65,7 @@ class ImageGenerator: ObservableObject {
 
                             let newU = u + (du * dt)
                             let newV = v + (dv * dt)
-                            if (newU < 0) {
-                                print("<0")
-                            }
+
                             nextA[y][x] = max(0, min(1, newU))
 
                             nextB[y][x] = max(0, min(1, newV))
@@ -81,9 +78,9 @@ class ImageGenerator: ObservableObject {
 
 
                 if i % nthFrame == 0 {
-                    print("Drawing frame")
-                    self.image = self.createImage(from: self.a, b: self.b, bitmapRep: bitmapRep, size: self.size)
-
+                    DispatchQueue.main.async {
+                        self.image = self.createImage(from: self.a, b: self.b, bitmapRep: bitmapRep, size: self.size)
+                    }
                 }
                 usleep(50)
             }
@@ -126,12 +123,13 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            GeometryReader { _ in  // 2
+            GeometryReader { mainGeometry in  // 2
                 Group {
                     if let img = self.generator.image {
                         Image(nsImage: img)
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
+                            .frame(width: mainGeometry.size.width, height: mainGeometry.size.height)
+                            .edgesIgnoringSafeArea(.all) // Ensures the image extends out of the safe area in the view
                             .overlay(GeometryReader { geometry in
                                 Color.clear
                                     .contentShape(Rectangle())
