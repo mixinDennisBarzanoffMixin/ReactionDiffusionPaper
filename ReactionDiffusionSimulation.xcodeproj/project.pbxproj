@@ -14,6 +14,9 @@
 		CA7E29C02B05341C00ED378D /* ReactionDiffusionSimulationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29BF2B05341C00ED378D /* ReactionDiffusionSimulationTests.swift */; };
 		CA7E29CA2B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29C92B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift */; };
 		CA7E29CC2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29CB2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift */; };
+		CAB9BD122B118DF000D1AE44 /* BZ reaction.metal in Sources */ = {isa = PBXBuildFile; fileRef = CAB9BD112B118DF000D1AE44 /* BZ reaction.metal */; };
+		CAFDAD142B133C8B00035DAA /* texture.metal in Sources */ = {isa = PBXBuildFile; fileRef = CAFDAD132B133C8B00035DAA /* texture.metal */; };
+		CAFDAD162B1390B600035DAA /* brush.metal in Sources */ = {isa = PBXBuildFile; fileRef = CAFDAD152B1390B600035DAA /* brush.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +48,9 @@
 		CA7E29C52B05341C00ED378D /* ReactionDiffusionSimulationUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactionDiffusionSimulationUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA7E29C92B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDiffusionSimulationUITests.swift; sourceTree = "<group>"; };
 		CA7E29CB2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDiffusionSimulationUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		CAB9BD112B118DF000D1AE44 /* BZ reaction.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = "BZ reaction.metal"; sourceTree = "<group>"; };
+		CAFDAD132B133C8B00035DAA /* texture.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = texture.metal; sourceTree = "<group>"; };
+		CAFDAD152B1390B600035DAA /* brush.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = brush.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +106,9 @@
 				CA7E29B12B05341C00ED378D /* Assets.xcassets */,
 				CA7E29B62B05341C00ED378D /* ReactionDiffusionSimulation.entitlements */,
 				CA7E29B32B05341C00ED378D /* Preview Content */,
+				CAB9BD112B118DF000D1AE44 /* BZ reaction.metal */,
+				CAFDAD132B133C8B00035DAA /* texture.metal */,
+				CAFDAD152B1390B600035DAA /* brush.metal */,
 			);
 			path = ReactionDiffusionSimulation;
 			sourceTree = "<group>";
@@ -259,8 +268,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CAFDAD162B1390B600035DAA /* brush.metal in Sources */,
+				CAB9BD122B118DF000D1AE44 /* BZ reaction.metal in Sources */,
 				CA7E29B02B05341A00ED378D /* ContentView.swift in Sources */,
 				CA7E29AE2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift in Sources */,
+				CAFDAD142B133C8B00035DAA /* texture.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,21 +7,30 @@
 
 import SwiftUI
 
+class OnOffNotifier: ObservableObject {
+    @Published var isRunning = true
+}
+
 @main
 struct ReactionDiffusionSimulationApp: App {
-    @StateObject var generator = ImageGenerator()
+    init() {
+        self.onOffNotifier = OnOffNotifier()
+    }
+    
 
+    @ObservedObject var onOffNotifier: OnOffNotifier
+    
     var body: some Scene {
         WindowGroup {
-            ContentView(generator: generator)
-                .environmentObject(generator)
+            ContentView(onOffNotifier: onOffNotifier)
+                .environmentObject(onOffNotifier)
         }
         .onChange(of: scenePhase) { phase in
             switch phase {
                 case .background, .inactive:
-                    generator.isRunning = false
+                    onOffNotifier.isRunning = false
                 case .active:
-                    generator.isRunning = true
+                    onOffNotifier.isRunning = true
                 @unknown default:
                     break
             }
