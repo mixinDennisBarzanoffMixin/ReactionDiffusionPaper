@@ -74,7 +74,7 @@ class RenderMetalManager {
 
         // Texture coordinate attribute - assuming it's the second attribute
         vertexDescriptor.attributes[1].format = .float2
-        vertexDescriptor.attributes[1].offset = MemoryLayout<SIMD4<Float>>.stride
+        vertexDescriptor.attributes[1].offset = MemoryLayout<SIMD4<Float>>.size
         vertexDescriptor.attributes[1].bufferIndex = 0
         // Set the stride for the vertex buffer
         vertexDescriptor.layouts[0].stride = MemoryLayout<VertexOut>.stride
@@ -98,12 +98,12 @@ class RenderMetalManager {
             VertexOut(position: SIMD4<Float>(-1.0,  1.0, 0.0, 1.0), coord: SIMD2<Float>(0.0, 0.0)), // top left
             VertexOut(position: SIMD4<Float>( 1.0, -1.0, 0.0, 1.0), coord: SIMD2<Float>(1.0, 1.0)), // bottom right
 
-            // Second Triangle
+//            // Second Triangle
             VertexOut(position: SIMD4<Float>( 1.0, -1.0, 0.0, 1.0), coord: SIMD2<Float>(1.0, 1.0)), // bottom right
             VertexOut(position: SIMD4<Float>(-1.0,  1.0, 0.0, 1.0), coord: SIMD2<Float>(0.0, 0.0)), // top left
             VertexOut(position: SIMD4<Float>( 1.0,  1.0, 0.0, 1.0), coord: SIMD2<Float>(1.0, 0.0))  // top right
         ];
-        self.vertexBuffer = self.metalManager.device.makeBuffer(bytes: quadVertices, length: MemoryLayout<VertexOut>.size * quadVertices.count, options: [])
+        self.vertexBuffer = self.metalManager.device.makeBuffer(bytes: quadVertices, length: MemoryLayout<VertexOut>.stride * quadVertices.count, options: [])
     }
     func makeRenderPassDescriptor(clearColor: MTLClearColor) -> MTLRenderPassDescriptor {
         let descriptor = MTLRenderPassDescriptor()
@@ -311,8 +311,6 @@ struct ContentView: View {
         self.bzReactionManager = BzReactionMetalManager(metalManager: self.metalManager)
         self.renderManager = RenderMetalManager(metalManager: self.metalManager)
         self.generator = ImageGenerator(bzReactionManager: self.bzReactionManager)
-        let generator = self.generator
-
 //        self.startRenderingLoop()
     }
     
@@ -333,52 +331,48 @@ struct ContentView: View {
 //    }
 
     var body: some View {
-        VStack {
-            GeometryReader { mainGeometry in  // 2
-                Group {
-                    MetalViewRepresentable(renderMetalManager: self.renderManager)
-                        .frame(width: mainGeometry.size.width, height: mainGeometry.size.height)
-                        .edgesIgnoringSafeArea(.all) // Ensures the image extends out of the safe area in the view
-                        .overlay(GeometryReader { geometry in
-                            Color.clear
-                                .contentShape(Rectangle())
-                                .gesture(
-                                    DragGesture(minimumDistance: 0)
-                                        .onChanged({ gesture in
-                                            let location = gesture.location
-                                            print(location.x)
-                                            print(geometry.size.width)
-                                            print(geometry.size.height)
-                                            
-                                            print(generator.size)
-                                            
-                                            let x = Int(location.x / geometry.size.width * CGFloat(generator.size));
-                                            print(x)
-                                            let y = Int(location.y / geometry.size.height * CGFloat(generator.size));
-                                            //                                                    self.generator.myQueue.async {
-                                            //
-                                            //                                                        self.generator.b[y][x] = 1.0  // Set your desired value here
-                                            //                                                    }
-                                            //                                                    return;
-                                            if x >= 0 && y >= 0 && x < generator.size && y < generator.size {
-                                                self.generator.myQueue.async {
-                                                    // Adjust the radius as needed
-                                                    // Create a circle around the point
-                                                    setRadius(centerX: 5, centerY: 10, radius: 10)
-                                                }
+         GeometryReader { mainGeometry in  // 2
+                MetalViewRepresentable(renderMetalManager: self.renderManager)
+                    .frame(width: mainGeometry.size.width, height: mainGeometry.size.height)
+                    .overlay(GeometryReader { geometry in
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged({ gesture in
+                                        let location = gesture.location
+                                        print(location.x)
+                                        print(geometry.size.width)
+                                        print(geometry.size.height)
+                                        
+                                        print(generator.size)
+                                        
+                                        let x = Int(location.x / geometry.size.width * CGFloat(generator.size));
+                                        print(x)
+                                        let y = Int(location.y / geometry.size.height * CGFloat(generator.size));
+                                        //                                                    self.generator.myQueue.async {
+                                        //
+                                        //                                                        self.generator.b[y][x] = 1.0  // Set your desired value here
+                                        //                                                    }
+                                        //                                                    return;
+                                        if x >= 0 && y >= 0 && x < generator.size && y < generator.size {
+                                            self.generator.myQueue.async {
+                                                // Adjust the radius as needed
+                                                // Create a circle around the point
+                                                setRadius(centerX: 5, centerY: 10, radius: 10)
                                             }
-                                        })
-                                )
-                            
-                        })
-                    
-                    
-                    
-                }
-            }
-        }.onAppear {
-            self.generator.generateImage()
-        }
+                                        }
+                                    })
+                            )
+                        
+                    })
+
+            }.onAppear {
+                self.generator.generateImage()
+            }.navigationTitle("BZ Reaction")
+                .frame(maxWidth: .infinity)
+                .edgesIgnoringSafeArea([.leading, .bottom, .trailing])
+        
     }
     func setRadius(centerX: UInt32, centerY: UInt32, radius: UInt32) {
         guard let device = MTLCreateSystemDefaultDevice() else {
