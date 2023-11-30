@@ -181,13 +181,14 @@ class BzReaction {
         self.pipelineState = try! MetalService.shared!.device.makeComputePipelineState(descriptor: pipelineStateDescriptor, options: [], reflection: nil);
     }
     func compute(iteration: Int) {
-        let texture1 = MetalService.shared!.texture!
-        let texture2 = MetalService.shared!.texture!
+//        return
+        let texture1 = MetalService.shared!.texture1!
+        let texture2 = MetalService.shared!.texture2!
         if let commandBuffer = self.commandQueue.makeCommandBuffer(),
                 let commandEncoder = commandBuffer.makeComputeCommandEncoder()  {
             commandBuffer.label = "Compute command buffer"
-            commandEncoder.setTexture(texture1, index: 1)
-            commandEncoder.setTexture(texture2, index: 0)
+            commandEncoder.setTexture(texture2, index: 1)
+            commandEncoder.setTexture(texture1, index: 0)
             
             let threadgroupSize = MTLSize(width: 16, height: 16, depth: 1)
             let textureWidth = texture1.width;
