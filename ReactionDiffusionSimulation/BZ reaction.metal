@@ -14,9 +14,9 @@ constant float f = 1.4f;
 constant float phi = 0.054f;
 constant float q = 0.002f;
 constant float Du = 0.45f;
-constant float dt = 0.01f;
+constant float dt = 0.0005f;
 
-float laplacian(texture2d<float, access::read_write> input, uint2 gid);
+float laplacian(texture2d<float, access::read_write> input, uint2 gid, float u);
 
 kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]],
                        texture2d<float, access::read_write> output [[texture(1)]],
@@ -33,7 +33,7 @@ kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]]
         float u = value.r;
         float v = value.g;
 
-        float uLaplacian = laplacian(input, gid);
+        float uLaplacian = laplacian(input, gid, u);
 
         float du = ((1 / eps) * (u - (u * u) - ((f * v) + phi) * ((u - q) / (u + q))) + Du * uLaplacian);
         float dv = (u - v);
@@ -49,8 +49,7 @@ kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]]
 }
 
 
-float laplacian(texture2d<float, access::read_write> input, uint2 gid) {
-    float u = input.read(gid).r;
+float laplacian(texture2d<float, access::read_write> input, uint2 gid, float u) {
 
     // Read adjacent cells
     float adjacentCells = input.read(gid + uint2(-1, 0)).r   // left

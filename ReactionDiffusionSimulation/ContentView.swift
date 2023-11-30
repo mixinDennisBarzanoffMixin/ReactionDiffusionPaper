@@ -10,8 +10,8 @@ import simd
 struct BrushState {
     var color: float4 = [1, 0, 0, 1]
     var center: uint2 = [50, 50]
-    var radius: UInt32 = 100
-    var enabled = false
+    var radius: UInt32 = 10
+    var enabled = true
     
     mutating func setRadius(centerX: UInt32, centerY: UInt32, radius: UInt32) {
         self.center = uint2(x: centerX, y: centerY)
@@ -21,7 +21,7 @@ struct BrushState {
     
 }
 
-let size = 500
+let size = 300
 
 var GlobalBrushState = BrushState() // This gets updated from the UI
 
@@ -35,6 +35,7 @@ class MetalService {
 
     var texture1: MTLTexture?
     var texture2: MTLTexture?
+    var computeFence: MTLFence?
     
     var texture: MTLTexture? {
         get {
@@ -60,6 +61,7 @@ class MetalService {
         self.commandQueue = commandQueue
         self.texture1 = setupWithDrawingTexture(width: size, height: size)
         self.texture2 = setupWithDrawingTexture(width: size, height: size)
+        self.computeFence = device.makeFence()
     }
 
     func setupWithDrawingTexture(width: Int, height: Int) -> MTLTexture? {
@@ -119,6 +121,7 @@ class BrushModifier {
         guard let commandEncoder = commandBuffer.makeComputeCommandEncoder() else {
             fatalError("Unable to create a command encoder.")
         }
+        commandEncoder.waitForFence(MetalService.shared!.computeFence!)
         // waits for the compute to finish at the beginning // first is compute, then brush
 //        commandEncoder.waitForFence(self.MetalService.shared!.computeFence)
 
@@ -156,7 +159,7 @@ class BrushModifier {
         // barrier, brush and render can execute concurrently
 
         commandBuffer.commit()
-        commandBuffer.waitUntilCompleted()
+//        commandBuffer.waitUntilCompleted()
         GlobalBrushState.enabled = false
     }
 
@@ -181,7 +184,8 @@ class BzReaction {
         self.pipelineState = try! MetalService.shared!.device.makeComputePipelineState(descriptor: pipelineStateDescriptor, options: [], reflection: nil);
     }
     func compute(iteration: Int) {
-//        return
+//        return;
+        usleep(5)
         let texture1 = MetalService.shared!.texture1!
         let texture2 = MetalService.shared!.texture2!
         if let commandBuffer = self.commandQueue.makeCommandBuffer(),
@@ -203,11 +207,11 @@ class BzReaction {
 
             commandEncoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadgroupSize)
             commandEncoder.endEncoding()
-//            commandEncoder.updateFence(MetalService.shared!.computeFence)
+            commandEncoder.updateFence(MetalService.shared!.computeFence!)
 //            commandEncoder.waitForFence(MetalService.shared!.renderFence)
             
             commandBuffer.commit()
-            commandBuffer.waitUntilCompleted()
+            
             
             // both the rendering and the computation are finished
             
@@ -247,13 +251,19 @@ class Renderer: NSObject, MTKViewDelegate {
         samplerDescriptor.tAddressMode = .clampToEdge
 
         samplerState = MetalService.shared!.device.makeSamplerState(descriptor: samplerDescriptor)!
-        
-
+    }
+    
+    func startReaction() {
+        DispatchQueue.global().async {
+            while (true) {
+                self.reaction.compute(iteration: 1)
+                MetalService.shared?.swapTexture()
+            }
+        }
     }
 
     func draw(in view: MTKView) {
         brush.draw()
-        reaction.compute(iteration: 1)
         guard let drawable = view.currentDrawable else { return }
 
         // Create vertex buffer
@@ -281,8 +291,7 @@ class Renderer: NSObject, MTKViewDelegate {
             commandBuffer.present(drawable)
         }
         commandBuffer.commit()
-        commandBuffer.waitUntilCompleted()
-        MetalService.shared?.swapTexture()
+//        commandBuffer.waitUntilCompleted()
     }
 
     
@@ -321,6 +330,7 @@ struct ContentView: View {
         self.mtkView.delegate = self.renderer
         self.mtkView.device = MetalService.shared?.device
         self.mtkView.framebufferOnly = false
+        self.renderer?.startReaction()
 
     }
     var body: some View {
