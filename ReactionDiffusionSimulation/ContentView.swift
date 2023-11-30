@@ -21,7 +21,7 @@ struct BrushState {
     
 }
 
-let size = 50
+let size = 500
 
 var GlobalBrushState = BrushState() // This gets updated from the UI
 
@@ -64,7 +64,7 @@ class MetalService {
 
     func setupWithDrawingTexture(width: Int, height: Int) -> MTLTexture? {
         let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: .rgba8Unorm,
+            pixelFormat: .rgba32Float,
             width: width,
             height: height,
             mipmapped: false
@@ -139,7 +139,7 @@ class BrushModifier {
         commandEncoder.setBuffer(radiusBuffer, offset: 0, index: 1)
         commandEncoder.setBuffer(colorBuffer, offset: 0, index: 2)
         
-        let texture = MetalService.shared!.texture!
+        let texture = MetalService.shared!.texture2!
         
         commandEncoder.setTexture(texture, index: 0)
 
@@ -187,12 +187,15 @@ class BzReaction {
         if let commandBuffer = self.commandQueue.makeCommandBuffer(),
                 let commandEncoder = commandBuffer.makeComputeCommandEncoder()  {
             commandBuffer.label = "Compute command buffer"
-            commandEncoder.setTexture(texture2, index: 1)
-            commandEncoder.setTexture(texture1, index: 0)
+            print("hashes")
+            print(texture1.hash)
+            print(texture2.hash)
+            commandEncoder.setTexture(texture1, index: 1)
+            commandEncoder.setTexture(texture2, index: 0)
             
             let threadgroupSize = MTLSize(width: 16, height: 16, depth: 1)
             let textureWidth = texture1.width;
-            let textureHeight = texture2.height;
+            let textureHeight = texture1.height;
             let threadgroupsPerGridWidth = (textureWidth + threadgroupSize.width - 1) / threadgroupSize.width
             let threadgroupsPerGridHeight = (textureHeight + threadgroupSize.width - 1) / threadgroupSize.height
             let threadgroupsPerGrid = MTLSize(width: threadgroupsPerGridWidth, height: threadgroupsPerGridHeight, depth: 1)
@@ -269,7 +272,7 @@ class Renderer: NSObject, MTKViewDelegate {
         if let renderPassDescriptor = view.currentRenderPassDescriptor, let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) {
             renderEncoder.setRenderPipelineState(pipelineState)
             renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-            renderEncoder.setFragmentTexture(MetalService.shared!.texture, index: 0)
+            renderEncoder.setFragmentTexture(MetalService.shared!.texture2, index: 0)
             renderEncoder.setFragmentSamplerState(samplerState, index: 0) // Set the sampler state here
 
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: quadVertices.count)
