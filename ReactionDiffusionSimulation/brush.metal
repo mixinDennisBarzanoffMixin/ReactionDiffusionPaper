@@ -9,13 +9,15 @@
 using namespace metal;
 
 
-kernel void set_color(texture2d<float, access::write> output [[texture(0)]],
+kernel void set_color(texture2d<float, access::read_write> output [[texture(0)]],
                       constant uint2 &center [[ buffer(0) ]],
                       constant uint &radius [[ buffer(1) ]],
                       constant float4 &color [[ buffer(2) ]],
                       uint2 gridPosition [[thread_position_in_grid]])
 {
-
+//    output.write(float4(1.0f, 1.0f, 1.0f, 1.0f), gridPosition);
+//    return;
+    if (radius == 0) return;
     int dx = center.x - gridPosition.x;
     int dy = center.y - gridPosition.y;
     

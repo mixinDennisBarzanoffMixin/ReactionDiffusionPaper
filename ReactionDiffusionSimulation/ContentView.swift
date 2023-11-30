@@ -1,3 +1,5 @@
+
+import Metal
 import CoreImage
 import AppKit
 import Metal
@@ -5,398 +7,121 @@ import SwiftUI
 import MetalKit
 import simd
 
-struct VertexOut {
-    var position: simd_float4
-    var coord: simd_float2
-}
-
-class MetalManager {
-    var device: MTLDevice
-    var texture1: MTLTexture
-    var texture2: MTLTexture
-    var size: Int
-    let library: MTLLibrary
-    init() {
-        // Initialize device
-        guard let device = MTLCreateSystemDefaultDevice() else {
-            fatalError("Metal is not supported on this device")
-        }
-        self.device = device
-        self.size = 50
-        guard let library = self.device.makeDefaultLibrary() else {
-            fatalError("Error making library")
-        }
-        self.library = library
-        // Create textures
-        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: .rgba32Float,
-            width: self.size,
-            height: self.size,
-            mipmapped: false
-        ) // Define your texture descriptor
-        textureDescriptor.usage = [.shaderRead, .shaderWrite]
-
-        texture1 = device.makeTexture(descriptor: textureDescriptor)!
-        texture2 = device.makeTexture(descriptor: textureDescriptor)!
+struct BrushState {
+    var color: float4 = [1, 0, 0, 1]
+    var center: uint2 = [50, 50]
+    var radius: UInt32 = 100
+    var enabled = false
+    
+    mutating func setRadius(centerX: UInt32, centerY: UInt32, radius: UInt32) {
+        self.center = uint2(x: centerX, y: centerY)
+        self.radius = radius
+        self.enabled = true
     }
     
-    func getTextureForRendering() -> MTLTexture {
-        return texture1
+}
+
+let size = 50
+
+var GlobalBrushState = BrushState() // This gets updated from the UI
+
+
+class MetalService {
+    static let shared = MetalService()
+
+    // Metal properties
+    let device: MTLDevice
+    let commandQueue: MTLCommandQueue
+
+    var texture1: MTLTexture?
+    var texture2: MTLTexture?
+    
+    var texture: MTLTexture? {
+        get {
+            return texture1
+        }
     }
-    func getTextureForComputing() -> MTLTexture {
-        return texture2
-    }
-    func swapTextures() {
+    
+    func swapTexture() {
         let temp = texture1
         texture1 = texture2
         texture2 = temp
     }
+    
 
-}
+    // Initializer
+    private init?() {
+        // Get the device
+        guard let device = MTLCreateSystemDefaultDevice() else { return nil }
+        self.device = device
 
-class RenderMetalManager {
-    var renderPipelineState: MTLRenderPipelineState
-    var commandQueue: MTLCommandQueue
-    var vertexBuffer: MTLBuffer?
-
-    let metalManager: MetalManager
-    init(metalManager: MetalManager) {
-        self.metalManager = metalManager
-        self.commandQueue = self.metalManager.device.makeCommandQueue()!
-        let renderPipeLineDescriptor = MTLRenderPipelineDescriptor()
-        renderPipeLineDescriptor.vertexFunction = self.metalManager.library.makeFunction(name: "vertex_main")
-        let vertexDescriptor = MTLVertexDescriptor()
-
-        // Position attribute - assuming it's the first attribute
-        vertexDescriptor.attributes[0].format = .float4
-        vertexDescriptor.attributes[0].offset = 0
-        vertexDescriptor.attributes[0].bufferIndex = 0
-
-        // Texture coordinate attribute - assuming it's the second attribute
-        vertexDescriptor.attributes[1].format = .float2
-        vertexDescriptor.attributes[1].offset = MemoryLayout<SIMD4<Float>>.size
-        vertexDescriptor.attributes[1].bufferIndex = 0
-        // Set the stride for the vertex buffer
-        vertexDescriptor.layouts[0].stride = MemoryLayout<VertexOut>.stride
-        
-        renderPipeLineDescriptor.vertexDescriptor = vertexDescriptor
-        
-
-        renderPipeLineDescriptor.fragmentFunction = self.metalManager.library.makeFunction(name: "fragment_main")
-        renderPipeLineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-
-//        var vertex = VertexOut(position: simd_float4(1,2,3,1), coord: simd_float2(0.5,0.5))
-//        self.buffer = metalManager.device.makeBuffer(bytes: &vertex, length: MemoryLayout<VertexOut>.stride, options: [])!
-
-        do {
-            self.renderPipelineState = try self.metalManager.device.makeRenderPipelineState(descriptor: renderPipeLineDescriptor)
-        } catch let error {
-            fatalError("Error making render pipeline \(error)")
-        }
-        let quadVertices = [
-            VertexOut(position: SIMD4<Float>(-1.0, -1.0, 0.0, 1.0), coord: SIMD2<Float>(0.0, 1.0)), // bottom left
-            VertexOut(position: SIMD4<Float>(-1.0,  1.0, 0.0, 1.0), coord: SIMD2<Float>(0.0, 0.0)), // top left
-            VertexOut(position: SIMD4<Float>( 1.0, -1.0, 0.0, 1.0), coord: SIMD2<Float>(1.0, 1.0)), // bottom right
-
-//            // Second Triangle
-            VertexOut(position: SIMD4<Float>( 1.0, -1.0, 0.0, 1.0), coord: SIMD2<Float>(1.0, 1.0)), // bottom right
-            VertexOut(position: SIMD4<Float>(-1.0,  1.0, 0.0, 1.0), coord: SIMD2<Float>(0.0, 0.0)), // top left
-            VertexOut(position: SIMD4<Float>( 1.0,  1.0, 0.0, 1.0), coord: SIMD2<Float>(1.0, 0.0))  // top right
-        ];
-        self.vertexBuffer = self.metalManager.device.makeBuffer(bytes: quadVertices, length: MemoryLayout<VertexOut>.stride * quadVertices.count, options: [])
+        // Create the command queue
+        guard let commandQueue = device.makeCommandQueue() else { return nil }
+        self.commandQueue = commandQueue
+        self.texture1 = setupWithDrawingTexture(width: size, height: size)
+        self.texture2 = setupWithDrawingTexture(width: size, height: size)
     }
-    func makeRenderPassDescriptor(clearColor: MTLClearColor) -> MTLRenderPassDescriptor {
-        let descriptor = MTLRenderPassDescriptor()
-        descriptor.colorAttachments[0].clearColor = clearColor
-        descriptor.colorAttachments[0].loadAction = .clear
-        descriptor.colorAttachments[0].storeAction = .store
-        return descriptor
+
+    func setupWithDrawingTexture(width: Int, height: Int) -> MTLTexture? {
+        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .rgba8Unorm,
+            width: width,
+            height: height,
+            mipmapped: false
+        )
+        textureDescriptor.usage = [.shaderRead, .shaderWrite]
+
+        let texture = device.makeTexture(descriptor: textureDescriptor)
+
+        return texture
     }
 }
 
-class BzReactionMetalManager {
-    let metalManager: MetalManager
-    var commandQueue: MTLCommandQueue
-    let pipelineState: MTLComputePipelineState
+
+class BrushModifier {
+
+    private let device: MTLDevice
+    private let texture: MTLTexture
+    private let computePipelineState: MTLComputePipelineState
     
+    init?() {
+        self.device = MetalService.shared!.device
+        self.texture = MetalService.shared!.texture!
 
-
-    init(metalManager: MetalManager) {
-        self.metalManager = metalManager
-        self.commandQueue = metalManager.device.makeCommandQueue()!
-        
-        let defaultLibrary = metalManager.device.makeDefaultLibrary()
-        let kernelFunction = defaultLibrary?.makeFunction(name: "bz_compute")
-        let pipelineStateDescriptor = MTLComputePipelineDescriptor()
-        pipelineStateDescriptor.computeFunction = kernelFunction
-        self.pipelineState = try! metalManager.device.makeComputePipelineState(descriptor: pipelineStateDescriptor, options: [], reflection: nil);
-    }
-    func compute(iteration: Int) {
-        usleep(200)
-        let texture1 = metalManager.texture1
-        let texture2 = metalManager.texture2
-        if let commandBuffer = self.commandQueue.makeCommandBuffer(),
-                let commandEncoder = commandBuffer.makeComputeCommandEncoder()  {
-
-            commandEncoder.setTexture(self.metalManager.getTextureForComputing(), index: 1)
-            commandEncoder.setTexture(self.metalManager.getTextureForRendering(), index: 0)
-
-            if (iteration.isMultiple(of: 2)) {
-                self.metalManager.swapTextures()
-            }
-            
-            let threadgroupSize = MTLSize(width: 16, height: 16, depth: 1)
-            let textureWidth = texture1.width;
-            let textureHeight = texture1.height;
-            let threadgroupsPerGridWidth = (textureWidth + threadgroupSize.width - 1) / threadgroupSize.width
-            let threadgroupsPerGridHeight = (textureHeight + threadgroupSize.width - 1) / threadgroupSize.height
-            let threadgroupsPerGrid = MTLSize(width: threadgroupsPerGridWidth, height: threadgroupsPerGridHeight, depth: 1)
-            commandEncoder.setComputePipelineState(self.pipelineState)
-
-            commandEncoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadgroupSize)
-            commandEncoder.endEncoding()
-            commandBuffer.commit()
+        // Set up the compute pipeline state with the given shader function name
+        guard let library = device.makeDefaultLibrary(),
+              let function = library.makeFunction(name: "set_color"),
+              let computePipelineState = try? device.makeComputePipelineState(function: function) else {
+            return nil
         }
 
-    }
-}
-
-class Renderer: NSObject, MTKViewDelegate {
-    var renderMetalManager: RenderMetalManager?
-
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-
-        if let device = MTLCreateSystemDefaultDevice() {
-            view.device = device
-        }
-
-    }
-    func draw(in view: MTKView) {
-        
-        if (view.device == nil) {
-            print("device nil")
-        }
-        if (view.currentDrawable == nil) {
-            print("Drawable nil")
-        }
-        guard let renderMetalManager = self.renderMetalManager else { return }
-
-        guard let commandBuffer = renderMetalManager.commandQueue.makeCommandBuffer() else {
-            print("Command buffer creation failed")
-            return
-        }
-
-        let renderPassDescriptor = renderMetalManager.makeRenderPassDescriptor(clearColor: MTLClearColor(red: 1, green: 0, blue: 0, alpha: 1))
-        renderPassDescriptor.colorAttachments[0].texture = view.currentDrawable!.texture
-        
-        guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
-            return
-        }
-//        guard let commandBuffer = renderMetalManager.commandQueue.makeCommandBuffer(),
-//              let renderPassDescriptor = view.currentRenderPassDescriptor,
-//              let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
-//            return
-//        }
-        print("drawing")
-
-
-        
-        renderEncoder.setRenderPipelineState(renderMetalManager.renderPipelineState)
-
-        // Bind the texture used by the compute shader
-        renderEncoder.setFragmentTexture(renderMetalManager.metalManager.getTextureForRendering(), index: 0)
-        // Create a sampler descriptor
-        let samplerDescriptor = MTLSamplerDescriptor()
-        samplerDescriptor.minFilter = .nearest
-        samplerDescriptor.magFilter = .nearest
-
-        // Create a sampler state using the descriptor and device
-        if let samplerState = renderMetalManager.metalManager.device.makeSamplerState(descriptor: samplerDescriptor) {
-            renderEncoder.setFragmentSamplerState(samplerState, index: 0)
-        }
-        // Set vertex data (assuming you have a method to get this)
-        let vertexBuffer = renderMetalManager.vertexBuffer
-        renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-    
-        // Issue a draw call
-        renderEncoder.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: 6) // Set vertexCount appropriately
-
-        // End encoding
-        renderEncoder.endEncoding()
-
-        // Present and commit the command buffer
-        if let drawable = view.currentDrawable {
-            commandBuffer.present(drawable)
-        }
-        commandBuffer.commit()
-
-    }
-}
-
-class TextureView: MTKView {
-    var renderer: Renderer!
-
-    func configure(renderMetalManager: RenderMetalManager) {
-        renderer = Renderer()
-        renderer.renderMetalManager = renderMetalManager
-        self.delegate = renderer
-    }
-
-}
-
-struct MetalViewRepresentable: NSViewRepresentable {
-    typealias UIViewType = MTKView
-    var renderMetalManager: RenderMetalManager
-    
-    func makeNSView(context: Context) -> MTKView {
-        let mtkView = TextureView()
-        mtkView.configure(renderMetalManager: renderMetalManager)
-        return mtkView
+        self.computePipelineState = computePipelineState
     }
     
-    func updateNSView(_ uiView: MTKView, context: Context) {
-        // Update the view if necessary
-        print("updating view")
-    }
-}
-    
-    
-    
-class ImageGenerator: ObservableObject {
-    @Published var image: NSImage?;
-    var size: Int = 50;
-    var myQueue = DispatchQueue(label: "my.lock.queue")
-    var isRunning = true
-    let bzReactionManager: BzReactionMetalManager
-    
-    init(bzReactionManager: BzReactionMetalManager) {
-        self.bzReactionManager = bzReactionManager
-    }
-    
-    func generateImage(every nthFrame: Int = 3) {
-        DispatchQueue.global(qos: .background).async {
-            print("Generating image")
-            
-            
-            let iterations = 5000
-            
-            for i in 0..<iterations {
-//                print("Iterating at i=" + String(i))
-                guard self.isRunning else { break }
-                self.myQueue.sync {
-                    self.bzReactionManager.compute(iteration: i)
-
-                }
-
-                usleep(50)
-            }
-            print("Finished")
+    func draw() {
+        if (!GlobalBrushState.enabled) {
+            return;
         }
-    }
-}
-    
-struct ContentView: View {
-    @State private var dragLocation: CGPoint = .zero  // 1
-    let onOffNotifier: OnOffNotifier
-    
-    
-    private let metalManager: MetalManager
-    private let bzReactionManager: BzReactionMetalManager
-    private let renderManager: RenderMetalManager
-    private let generator: ImageGenerator
-    
-    init(onOffNotifier: OnOffNotifier) {
-        self.onOffNotifier = onOffNotifier
-        self.metalManager = MetalManager()
-        self.bzReactionManager = BzReactionMetalManager(metalManager: self.metalManager)
-        self.renderManager = RenderMetalManager(metalManager: self.metalManager)
-        self.generator = ImageGenerator(bzReactionManager: self.bzReactionManager)
-//        self.startRenderingLoop()
-    }
-    
-    // Existing properties...
-
-//    var timer: Timer?
-
-//    func startRenderingLoop() {
-//        self.timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
-//            self?.refreshView()
-//        }
-//    }
-//    private func refreshView() {
-//        DispatchQueue.main.async {
-//            // Assuming you have a reference to your TextureView instance
-//            textureView.setNeedsDisplay()
-//        }
-//    }
-
-    var body: some View {
-         GeometryReader { mainGeometry in  // 2
-                MetalViewRepresentable(renderMetalManager: self.renderManager)
-                    .frame(width: mainGeometry.size.width, height: mainGeometry.size.height)
-                    .overlay(GeometryReader { geometry in
-                        Color.clear
-                            .contentShape(Rectangle())
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged({ gesture in
-                                        let location = gesture.location
-                                        print(location.x)
-                                        print(geometry.size.width)
-                                        print(geometry.size.height)
-                                        
-                                        print(generator.size)
-                                        
-                                        let x = Int(location.x / geometry.size.width * CGFloat(generator.size));
-                                        print(x)
-                                        let y = Int(location.y / geometry.size.height * CGFloat(generator.size));
-                                        //                                                    self.generator.myQueue.async {
-                                        //
-                                        //                                                        self.generator.b[y][x] = 1.0  // Set your desired value here
-                                        //                                                    }
-                                        //                                                    return;
-                                        if x >= 0 && y >= 0 && x < generator.size && y < generator.size {
-                                            self.generator.myQueue.async {
-                                                // Adjust the radius as needed
-                                                // Create a circle around the point
-                                                setRadius(centerX: 5, centerY: 10, radius: 10)
-                                            }
-                                        }
-                                    })
-                            )
-                        
-                    })
-
-            }.onAppear {
-                self.generator.generateImage()
-            }.navigationTitle("BZ Reaction")
-                .frame(maxWidth: .infinity)
-                .edgesIgnoringSafeArea([.leading, .bottom, .trailing])
-        
-    }
-    func setRadius(centerX: UInt32, centerY: UInt32, radius: UInt32) {
-        guard let device = MTLCreateSystemDefaultDevice() else {
-            fatalError("Unable to create a Metal device.")
-        }
-
-        guard let commandQueue = device.makeCommandQueue() else {
-            fatalError("Unable to create a command queue.")
-        }
-
-        let color: [Float] = [1.0, 0.0, 0.0, 1.0]
-        var center = uint2(centerX, centerY)
-        var radiusR = radius
+        let device = MetalService.shared!.device
+        var color = GlobalBrushState.color
+        var center = GlobalBrushState.center
+        var radiusR = GlobalBrushState.radius
         let centerBuffer = device.makeBuffer(bytes: &center, length: MemoryLayout<uint2>.stride, options: [])
         let radiusBuffer = device.makeBuffer(bytes: &radiusR, length: MemoryLayout<uint>.stride, options: [])
-        let colorBuffer = device.makeBuffer(bytes: color, length: color.count * MemoryLayout<Float>.stride, options: [])
+        let colorBuffer = device.makeBuffer(bytes: &color, length: MemoryLayout<SIMD4<Float>>.stride, options: [])
 
-        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+        guard let commandBuffer = MetalService.shared!.commandQueue.makeCommandBuffer() else {
             fatalError("Unable to create a command buffer.")
         }
+        commandBuffer.label = "Brush command buffer"
+
 
         guard let commandEncoder = commandBuffer.makeComputeCommandEncoder() else {
             fatalError("Unable to create a command encoder.")
         }
+        // waits for the compute to finish at the beginning // first is compute, then brush
+//        commandEncoder.waitForFence(self.MetalService.shared!.computeFence)
+
 
         let library = device.makeDefaultLibrary()!
         let computeFunction = library.makeFunction(name: "set_color")!
@@ -414,7 +139,7 @@ struct ContentView: View {
         commandEncoder.setBuffer(radiusBuffer, offset: 0, index: 1)
         commandEncoder.setBuffer(colorBuffer, offset: 0, index: 2)
         
-        let texture = self.generator.bzReactionManager.metalManager.getTextureForComputing()
+        let texture = MetalService.shared!.texture!
         
         commandEncoder.setTexture(texture, index: 0)
 
@@ -425,42 +150,200 @@ struct ContentView: View {
         commandEncoder.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadGroupCount)
 
         commandEncoder.endEncoding()
+//        commandEncoder.updateFence(self.MetalService.shared!.brushFence)
+//        commandEncoder.waitForFence(self.MetalService.shared!.renderFence)
+        
+        // barrier, brush and render can execute concurrently
+
         commandBuffer.commit()
+        commandBuffer.waitUntilCompleted()
+        GlobalBrushState.enabled = false
     }
 
-    func debugReadData(commandBuffer: MTLCommandBuffer) {
-        let bytesPerRow = metalManager.texture1.width * 4 // 4 bytes per pixel for RGBA
-        let alignedBytesPerRow = ((bytesPerRow + 15) / 16) * 16 // Align to 16 bytes
-        let bufferSize = bytesPerRow * metalManager.texture1.height
-        guard let cpuBuffer = metalManager.device.makeBuffer(length: bufferSize, options: .storageModeShared) else { return }
-        guard let blitEncoder = commandBuffer.makeBlitCommandEncoder() else {
-            fatalError("Could not create blit encoder")
-        }
+}
 
-        blitEncoder.synchronize(resource: metalManager.texture1)
-        blitEncoder.copy(from: metalManager.texture1,
-                         sourceSlice: 0,
-                         sourceLevel: 0,
-                         sourceOrigin: MTLOrigin(x: 0, y: 0, z: 0),
-                         sourceSize: MTLSize(width: metalManager.texture1.width, height: metalManager.texture1.height, depth: 1),
-                         to: cpuBuffer,
-                         destinationOffset: 0,
-                         destinationBytesPerRow: alignedBytesPerRow,
-                         destinationBytesPerImage: bufferSize)
+struct VertexOut {
+    var position: simd_float4
+    var coord: simd_float2
+}
 
-        blitEncoder.endEncoding()
-        commandBuffer.addCompletedHandler { _ in
-            let data = Data(bytesNoCopy: cpuBuffer.contents(), count: bufferSize, deallocator: .none)
-            // Process data here...
+class BzReaction {
+    var commandQueue: MTLCommandQueue
+    let pipelineState: MTLComputePipelineState
+
+    init() {
+        self.commandQueue = MetalService.shared!.commandQueue
+        
+        let defaultLibrary = MetalService.shared!.device.makeDefaultLibrary()
+        let kernelFunction = defaultLibrary?.makeFunction(name: "bz_compute")
+        let pipelineStateDescriptor = MTLComputePipelineDescriptor()
+        pipelineStateDescriptor.computeFunction = kernelFunction
+        self.pipelineState = try! MetalService.shared!.device.makeComputePipelineState(descriptor: pipelineStateDescriptor, options: [], reflection: nil);
+    }
+    func compute(iteration: Int) {
+        let texture1 = MetalService.shared!.texture!
+        let texture2 = MetalService.shared!.texture!
+        if let commandBuffer = self.commandQueue.makeCommandBuffer(),
+                let commandEncoder = commandBuffer.makeComputeCommandEncoder()  {
+            commandBuffer.label = "Compute command buffer"
+            commandEncoder.setTexture(texture1, index: 1)
+            commandEncoder.setTexture(texture2, index: 0)
+            
+            let threadgroupSize = MTLSize(width: 16, height: 16, depth: 1)
+            let textureWidth = texture1.width;
+            let textureHeight = texture2.height;
+            let threadgroupsPerGridWidth = (textureWidth + threadgroupSize.width - 1) / threadgroupSize.width
+            let threadgroupsPerGridHeight = (textureHeight + threadgroupSize.width - 1) / threadgroupSize.height
+            let threadgroupsPerGrid = MTLSize(width: threadgroupsPerGridWidth, height: threadgroupsPerGridHeight, depth: 1)
+            commandEncoder.setComputePipelineState(self.pipelineState)
+
+            commandEncoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadgroupSize)
+            commandEncoder.endEncoding()
+//            commandEncoder.updateFence(MetalService.shared!.computeFence)
+//            commandEncoder.waitForFence(MetalService.shared!.renderFence)
+            
+            commandBuffer.commit()
+            commandBuffer.waitUntilCompleted()
+            
+            // both the rendering and the computation are finished
+            
+            
+            
         }
-        commandBuffer.commit()
 
     }
 }
 
-//
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ContentView()
-//    }
-//}
+
+class Renderer: NSObject, MTKViewDelegate {
+    let brush: BrushModifier
+    let reaction: BzReaction
+    var pipelineState: MTLRenderPipelineState!
+    let samplerState: MTLSamplerState
+    override init() {
+        let pipelineDescriptor = MTLRenderPipelineDescriptor()
+        // Set your shaders in the pipeline
+        let library = MetalService.shared!.device.makeDefaultLibrary()!
+        pipelineDescriptor.vertexFunction = library.makeFunction(name: "vertex_main")
+        pipelineDescriptor.fragmentFunction = library.makeFunction(name: "fragment_main")
+        // Set your pipeline's pixel formats to match your drawable's pixel format
+        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        
+        self.brush = BrushModifier()!
+        self.reaction = BzReaction()
+
+        // Compile the pipeline state
+        pipelineState = try! MetalService.shared!.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+        
+        // Setup a default sampler
+        let samplerDescriptor = MTLSamplerDescriptor()
+        samplerDescriptor.minFilter = .linear
+        samplerDescriptor.magFilter = .linear
+        samplerDescriptor.sAddressMode = .clampToEdge
+        samplerDescriptor.tAddressMode = .clampToEdge
+
+        samplerState = MetalService.shared!.device.makeSamplerState(descriptor: samplerDescriptor)!
+        
+
+    }
+
+    func draw(in view: MTKView) {
+        brush.draw()
+        reaction.compute(iteration: 1)
+        guard let drawable = view.currentDrawable else { return }
+
+        // Create vertex buffer
+        let quadVertices = [
+            VertexOut(position: SIMD4<Float>(-1.0, -1.0, 0.0, 1.0), coord: SIMD2<Float>(0.0, 1.0)), // bottom left
+            VertexOut(position: SIMD4<Float>(-1.0,  1.0, 0.0, 1.0), coord: SIMD2<Float>(0.0, 0.0)), // top left
+            VertexOut(position: SIMD4<Float>( 1.0, -1.0, 0.0, 1.0), coord: SIMD2<Float>(1.0, 1.0)), // bottom right
+
+//            // Second Triangle
+            VertexOut(position: SIMD4<Float>( 1.0, -1.0, 0.0, 1.0), coord: SIMD2<Float>(1.0, 1.0)), // bottom right
+            VertexOut(position: SIMD4<Float>(-1.0,  1.0, 0.0, 1.0), coord: SIMD2<Float>(0.0, 0.0)), // top left
+            VertexOut(position: SIMD4<Float>( 1.0,  1.0, 0.0, 1.0), coord: SIMD2<Float>(1.0, 0.0))  // top right
+        ];
+        let vertexBuffer = MetalService.shared!.device.makeBuffer(bytes: quadVertices, length: MemoryLayout<VertexOut>.stride * quadVertices.count, options: [])
+        let commandBuffer = MetalService.shared!.commandQueue.makeCommandBuffer()!
+        if let renderPassDescriptor = view.currentRenderPassDescriptor, let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) {
+            renderEncoder.setRenderPipelineState(pipelineState)
+            renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+            renderEncoder.setFragmentTexture(MetalService.shared!.texture, index: 0)
+            renderEncoder.setFragmentSamplerState(samplerState, index: 0) // Set the sampler state here
+
+            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: quadVertices.count)
+            renderEncoder.endEncoding()
+            
+            commandBuffer.present(drawable)
+        }
+        commandBuffer.commit()
+        commandBuffer.waitUntilCompleted()
+        MetalService.shared?.swapTexture()
+    }
+
+    
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        
+    }
+    
+    private weak var mtkView: MTKView?
+
+
+}
+
+
+struct MetalNSView: NSViewRepresentable {
+    let mtkView: MTKView
+
+    func makeNSView(context: Context) -> MTKView {
+        return mtkView
+    }
+
+    func updateNSView(_ nsView: MTKView, context: Context) {
+        // performing updates of your `nsView` if needed
+    }
+}
+
+
+
+
+struct ContentView: View {
+    let mtkView: MTKView
+
+    var renderer: Renderer?
+    init() {
+        self.renderer = Renderer()
+        self.mtkView = MTKView()
+        self.mtkView.delegate = self.renderer
+        self.mtkView.device = MetalService.shared?.device
+        self.mtkView.framebufferOnly = false
+
+    }
+    var body: some View {
+        GeometryReader { mainGeometry in  // 2
+            MetalNSView(mtkView: mtkView)
+                .frame(width: mainGeometry.size.width, height: mainGeometry.size.height)
+                .overlay(GeometryReader { geometry in
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged({ gesture in
+                                    let location = gesture.location
+                                    
+                                    let x = Int(location.x / geometry.size.width * CGFloat(size));
+                                    print(x)
+                                    let y = Int(location.y / geometry.size.height * CGFloat(size));
+                                    if x >= 0 && y >= 0 && x < size && y < size {
+                                        GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 5)
+                                    }
+                                })
+                        )
+                    
+                })
+            
+        }.navigationTitle("BZ Reaction")
+            .frame(maxWidth: .infinity)
+            .edgesIgnoringSafeArea([.leading, .bottom, .trailing])
+    }
+}
