@@ -14,7 +14,7 @@ constant float f = 1.4f;
 constant float phi = 0.054f;
 constant float q = 0.002f;
 constant float Du = 0.45f;
-constant float dt = 0.0005f;
+constant float dt = 0.01f;
 
 float laplacian(texture2d<float, access::read_write> input, uint2 gid, float u);
 
