@@ -209,7 +209,7 @@ class BzReaction {
     }
     func compute(iteration: Int) {
 //        return;
-        usleep(5)
+        usleep(30)
         let texture1 = MetalService.shared!.texture1!
         let texture2 = MetalService.shared!.texture2!
         if let commandBuffer = self.commandQueue.makeCommandBuffer(),
@@ -374,7 +374,7 @@ struct ContentView: View {
 //                                    print(x)
                                     let y = Int(location.y / geometry.size.height * CGFloat(height));
                                     if x >= 0 && y >= 0 && x < width && y < height {
-                                        GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 4)
+                                        GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 2)
                                     }
                                 })
                         )

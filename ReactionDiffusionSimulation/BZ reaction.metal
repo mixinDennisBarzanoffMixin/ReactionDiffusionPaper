@@ -15,7 +15,7 @@ constant float phi_active = 0.054f;
 constant float phi_passive = 0.0975f;
 constant float q = 0.002f;
 constant float Du = 0.45f;
-constant float dt = 0.001f;
+constant float dt = 0.0005f;
 
 float laplacian(texture2d<float, access::read_write> input, uint2 gid, float u);
 float scale(float value, float minRange, float maxRange);
