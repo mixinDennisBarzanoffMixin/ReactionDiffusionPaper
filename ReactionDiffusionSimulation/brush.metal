@@ -20,8 +20,9 @@ kernel void set_color(texture2d<float, access::read_write> output [[texture(0)]]
     if (radius == 0) return;
     int dx = center.x - gridPosition.x;
     int dy = center.y - gridPosition.y;
-    
     if ((dx*dx + dy*dy) <= radius*radius) {
-        output.write(color, gridPosition);
+        float4 currentColor = output.read(gridPosition);
+        float4 withoutBlueInfoColor = float4(color.r, color.g, currentColor.b, currentColor.a);
+        output.write(withoutBlueInfoColor, gridPosition);
     }
 }

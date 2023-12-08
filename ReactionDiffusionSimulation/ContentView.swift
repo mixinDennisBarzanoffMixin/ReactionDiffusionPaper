@@ -6,6 +6,8 @@ import Metal
 import SwiftUI
 import MetalKit
 import simd
+import MetalPerformanceShaders
+
 
 struct BrushState {
     var color: float4 = [1, 0, 0, 1]
@@ -20,8 +22,6 @@ struct BrushState {
     }
     
 }
-
-let size = 300
 
 var GlobalBrushState = BrushState() // This gets updated from the UI
 
@@ -59,24 +59,48 @@ class MetalService {
         // Create the command queue
         guard let commandQueue = device.makeCommandQueue() else { return nil }
         self.commandQueue = commandQueue
-        self.texture1 = setupWithDrawingTexture(width: size, height: size)
-        self.texture2 = setupWithDrawingTexture(width: size, height: size)
+        self.texture1 = setupWithDrawingTexture()
+        self.texture2 = setupWithDrawingTexture()
         self.computeFence = device.makeFence()
     }
 
-    func setupWithDrawingTexture(width: Int, height: Int) -> MTLTexture? {
-        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: .rgba32Float,
-            width: width,
-            height: height,
-            mipmapped: false
-        )
-        textureDescriptor.usage = [.shaderRead, .shaderWrite]
 
-        let texture = device.makeTexture(descriptor: textureDescriptor)
+    func setupWithDrawingTexture() -> MTLTexture? {
+        
+        guard let device = MTLCreateSystemDefaultDevice() else { return nil }
+        
+        // Load the image as a new texture.
+        let loader = MTKTextureLoader(device: device)
 
-        return texture
+        guard let url = Bundle.main.url(forResource: "circuit2", withExtension: "png") else { return nil }
+        guard let texture = try? loader.newTexture(URL: url, options: nil) else { return nil }
+        
+        // Create a destination texture with the required pixel format.
+        let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rgba32Float,
+                                                                  width: texture.width,
+                                                                  height: texture.height,
+                                                                  mipmapped: false)
+        descriptor.usage = [.shaderRead, .shaderWrite]
+        guard let destTexture = device.makeTexture(descriptor: descriptor) else { return nil }
+        
+        if let commandBuffer = device.makeCommandQueue()?.makeCommandBuffer() {
+            
+            let mpsConversion = MPSImageConversion(device: device,
+                                                   srcAlpha: .alphaIsOne,
+                                                   destAlpha: .alphaIsOne,
+                                                   backgroundColor: nil,
+                                                   conversionInfo: nil)
+            
+            mpsConversion.encode(commandBuffer: commandBuffer, sourceTexture: texture, destinationTexture: destTexture)
+            
+            commandBuffer.commit()
+            commandBuffer.waitUntilCompleted()
+        }
+
+        return destTexture
     }
+
+
 }
 
 
@@ -344,12 +368,13 @@ struct ContentView: View {
                             DragGesture(minimumDistance: 0)
                                 .onChanged({ gesture in
                                     let location = gesture.location
-                                    
-                                    let x = Int(location.x / geometry.size.width * CGFloat(size));
-                                    print(x)
-                                    let y = Int(location.y / geometry.size.height * CGFloat(size));
-                                    if x >= 0 && y >= 0 && x < size && y < size {
-                                        GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 5)
+                                    guard let width = MetalService.shared!.texture1?.width else { return }
+                                    guard let height = MetalService.shared!.texture1?.height else { return }
+                                    let x = Int(location.x / geometry.size.width * CGFloat(width));
+//                                    print(x)
+                                    let y = Int(location.y / geometry.size.height * CGFloat(height));
+                                    if x >= 0 && y >= 0 && x < width && y < height {
+                                        GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 4)
                                     }
                                 })
                         )

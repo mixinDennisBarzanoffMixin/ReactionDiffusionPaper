@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CA2FD3D92B235484003CF800 /* circuit2.png in Resources */ = {isa = PBXBuildFile; fileRef = CA2FD3D82B235484003CF800 /* circuit2.png */; };
 		CA7E29AE2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29AD2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift */; };
 		CA7E29B02B05341A00ED378D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29AF2B05341A00ED378D /* ContentView.swift */; };
 		CA7E29B22B05341C00ED378D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA7E29B12B05341C00ED378D /* Assets.xcassets */; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CA2FD3D82B235484003CF800 /* circuit2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = circuit2.png; sourceTree = "<group>"; };
 		CA7E29AA2B05341A00ED378D /* ReactionDiffusionSimulation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReactionDiffusionSimulation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA7E29AD2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDiffusionSimulationApp.swift; sourceTree = "<group>"; };
 		CA7E29AF2B05341A00ED378D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 		CA7E29AC2B05341A00ED378D /* ReactionDiffusionSimulation */ = {
 			isa = PBXGroup;
 			children = (
+				CA2FD3D82B235484003CF800 /* circuit2.png */,
 				CA7E29AD2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift */,
 				CA7E29AF2B05341A00ED378D /* ContentView.swift */,
 				CA7E29B12B05341C00ED378D /* Assets.xcassets */,
@@ -244,6 +247,7 @@
 			files = (
 				CA7E29B52B05341C00ED378D /* Preview Assets.xcassets in Resources */,
 				CA7E29B22B05341C00ED378D /* Assets.xcassets in Resources */,
+				CA2FD3D92B235484003CF800 /* circuit2.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

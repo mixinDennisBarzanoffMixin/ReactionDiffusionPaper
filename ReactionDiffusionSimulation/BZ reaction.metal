@@ -11,12 +11,14 @@ using namespace metal;
 
 constant float eps = 0.0243f;
 constant float f = 1.4f;
-constant float phi = 0.054f;
+constant float phi_active = 0.054f;
+constant float phi_passive = 0.0975f;
 constant float q = 0.002f;
 constant float Du = 0.45f;
-constant float dt = 0.01f;
+constant float dt = 0.001f;
 
 float laplacian(texture2d<float, access::read_write> input, uint2 gid, float u);
+float scale(float value, float minRange, float maxRange);
 
 kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]],
                        texture2d<float, access::read_write> output [[texture(1)]],
@@ -32,7 +34,8 @@ kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]]
         // Perform your computations...
         float u = value.r;
         float v = value.g;
-
+        float phi = scale(1 - value.b, phi_passive, phi_active);
+//        float phi = phi_active;
         float uLaplacian = laplacian(input, gid, u);
 
         float du = ((1 / eps) * (u - (u * u) - ((f * v) + phi) * ((u - q) / (u + q))) + Du * uLaplacian);
@@ -60,3 +63,7 @@ float laplacian(texture2d<float, access::read_write> input, uint2 gid, float u) 
     return (adjacentCells - (4 * u)) / (0.25 * 0.25);
 }
 
+
+float scale(float value, float minRange, float maxRange) {
+    return minRange + (value / 1) * (maxRange - minRange);
+}
