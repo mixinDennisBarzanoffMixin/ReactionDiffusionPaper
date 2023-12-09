@@ -23,12 +23,23 @@ struct BrushState {
     
 }
 
+struct Seed {
+    var seed1: UInt32 = 0
+    var seed2: UInt32 = 0
+}
+
+struct ReactionConfig {
+    var seed: Seed = Seed()
+    var noiseScale: Float32 = 0;
+}
+
+var GlobalReactionConfig = ReactionConfig()
+
 var GlobalBrushState = BrushState() // This gets updated from the UI
 
 
 class MetalService {
     static let shared = MetalService()
-
     // Metal properties
     let device: MTLDevice
     let commandQueue: MTLCommandQueue
@@ -215,11 +226,22 @@ class BzReaction {
         if let commandBuffer = self.commandQueue.makeCommandBuffer(),
                 let commandEncoder = commandBuffer.makeComputeCommandEncoder()  {
             commandBuffer.label = "Compute command buffer"
-            print("hashes")
-            print(texture1.hash)
-            print(texture2.hash)
+            let seedNum1 = UInt32.random(in: .min ... .max)
+            let seedNum2 = UInt32.random(in: .min ... .max)
+
+            var seed = Seed(seed1: seedNum1, seed2: seedNum2);
+            GlobalReactionConfig.seed = seed
+            var config = GlobalReactionConfig
+            print(GlobalReactionConfig.noiseScale)
+            
+            let seedBuffer = commandBuffer.device.makeBuffer(bytes: &config, length: MemoryLayout<ReactionConfig>.stride, options: [])
+
+//            print("hashes")
+//            print(texture1.hash)
+//            print(texture2.hash)
             commandEncoder.setTexture(texture1, index: 1)
             commandEncoder.setTexture(texture2, index: 0)
+            commandEncoder.setBuffer(seedBuffer, offset: 0, index: 0)
             
             let threadgroupSize = MTLSize(width: 16, height: 16, depth: 1)
             let textureWidth = texture1.width;
@@ -342,6 +364,38 @@ struct MetalNSView: NSViewRepresentable {
 }
 
 
+struct ConfigView: View {
+    @State private var isOn = false
+    @State private var value: Float = 0
+
+    var body: some View {
+        VStack(alignment: .leading) {
+//            Toggle(isOn: $isOn) {
+//                Text("Toggle")
+//                    .foregroundColor(.black)
+//            }
+            Slider(value: Binding(
+                get: { self.value },
+                set: { newValue in
+                    self.value = newValue
+                    self.sliderChanged(newValue: newValue)
+                }
+            ), in: 0...1) {
+                Text("Noise slider")
+                    .foregroundColor(.black)
+            }
+            .padding()
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(10)
+    }
+    
+    func sliderChanged(newValue: Float) {
+        print("Setting slider value to \(value)")
+        GlobalReactionConfig.noiseScale = Float32(newValue)
+    }
+}
 
 
 struct ContentView: View {
@@ -359,30 +413,42 @@ struct ContentView: View {
     }
     var body: some View {
         GeometryReader { mainGeometry in  // 2
-            MetalNSView(mtkView: mtkView)
-                .frame(width: mainGeometry.size.width, height: mainGeometry.size.height)
-                .overlay(GeometryReader { geometry in
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged({ gesture in
-                                    let location = gesture.location
-                                    guard let width = MetalService.shared!.texture1?.width else { return }
-                                    guard let height = MetalService.shared!.texture1?.height else { return }
-                                    let x = Int(location.x / geometry.size.width * CGFloat(width));
-//                                    print(x)
-                                    let y = Int(location.y / geometry.size.height * CGFloat(height));
-                                    if x >= 0 && y >= 0 && x < width && y < height {
-                                        GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 2)
-                                    }
-                                })
-                        )
-                    
-                })
-            
-        }.navigationTitle("BZ Reaction")
-            .frame(maxWidth: .infinity)
-            .edgesIgnoringSafeArea([.leading, .bottom, .trailing])
+            ZStack {
+                MetalNSView(mtkView: mtkView)
+                    .frame(width: mainGeometry.size.width, height: mainGeometry.size.height)
+                    .overlay(GeometryReader { geometry in
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged({ gesture in
+                                        let location = gesture.location
+                                        guard let width = MetalService.shared!.texture1?.width else { return }
+                                        guard let height = MetalService.shared!.texture1?.height else { return }
+                                        let x = Int(location.x / geometry.size.width * CGFloat(width));
+                                        //                                    print(x)
+                                        let y = Int(location.y / geometry.size.height * CGFloat(height));
+                                        if x >= 0 && y >= 0 && x < width && y < height {
+                                            GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 2)
+                                        }
+                                    })
+                            )
+                        
+                    })
+                
+            }.navigationTitle("BZ Reaction")
+                .frame(maxWidth: .infinity)
+                .edgesIgnoringSafeArea([.leading, .bottom, .trailing])
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            VStack {
+                Spacer()
+                HStack {
+                    ConfigView()
+                        .frame(maxWidth: mainGeometry.size.width / 3)
+                        .padding()
+                    Spacer()
+                }
+            }
+        }
     }
 }

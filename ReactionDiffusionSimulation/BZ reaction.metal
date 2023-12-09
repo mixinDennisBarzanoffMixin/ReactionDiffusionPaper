@@ -17,11 +17,27 @@ constant float q = 0.002f;
 constant float Du = 0.45f;
 constant float dt = 0.0005f;
 
+constant float M_PI = 3.149516f;
+
+struct Seed {
+    uint seed1;
+    uint seed2;
+};
+
+struct ReactionConfig {
+    Seed seed;
+    float noiseScale;
+};
+
+
+float get_random_float(uint seed);
+float gaussianNoise(float mean, float stdDev, constant Seed& seed);
 float laplacian(texture2d<float, access::read_write> input, uint2 gid, float u);
 float scale(float value, float minRange, float maxRange);
 
 kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]],
                        texture2d<float, access::read_write> output [[texture(1)]],
+                       constant ReactionConfig& config [[buffer(0)]],
                        uint2 gid [[thread_position_in_grid]]) {
 //    float4 res = float4(1.0f, 1.0f, 1.0f, 1.0f);
 //    output.write(res, gid);
@@ -37,8 +53,13 @@ kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]]
         float phi = scale(1 - value.b, phi_passive, phi_active);
 //        float phi = phi_active;
         float uLaplacian = laplacian(input, gid, u);
-
-        float du = ((1 / eps) * (u - (u * u) - ((f * v) + phi) * ((u - q) / (u + q))) + Du * uLaplacian);
+        
+        float noise = gaussianNoise(0, config.noiseScale * 5, config.seed);
+//        float phi_diff = phi_passive - phi_active;
+        // phi is either phi_active or phi_passive
+        float phi_noise = phi + noise;
+        phi_noise = clamp(phi_noise, phi_active, phi_passive);
+        float du = ((1 / eps) * (u - (u * u) - ((f * v) + phi_noise) * ((u - q) / (u + q))) + Du * uLaplacian);
         float dv = (u - v);
 
         float newU = clamp(u + (du * dt), 0.0f, 1.0f);
@@ -66,4 +87,20 @@ float laplacian(texture2d<float, access::read_write> input, uint2 gid, float u) 
 
 float scale(float value, float minRange, float maxRange) {
     return minRange + (value / 1) * (maxRange - minRange);
+}
+
+float get_random_float(uint seed) {
+    float result = fract(sin(float(seed) * 1.61803398875f) * 4253.548887f);
+    if (result == 0.0f) {
+         result = 0.5f; // or choose another appropriate non-zero value in the range (0,1)
+    }
+    return result;
+}
+
+float gaussianNoise(float mean, float stdDev, constant Seed& seed){
+    // Use Box-Muller transform to generate a point from normal distribution.
+    float u1 = get_random_float(seed.seed1);
+    float u2 = get_random_float(seed.seed2);
+    float randStdNormal = sqrt(-2.0 * log(u1)) * sin(2.0 * M_PI * u2);
+    return mean + stdDev * randStdNormal;
 }
