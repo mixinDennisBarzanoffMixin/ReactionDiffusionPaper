@@ -9,6 +9,7 @@ import simd
 import MetalPerformanceShaders
 
 
+
 struct BrushState {
     var color: float4 = [1, 0, 0, 1]
     var center: uint2 = [50, 50]
@@ -232,7 +233,7 @@ class BzReaction {
             var seed = Seed(seed1: seedNum1, seed2: seedNum2);
             GlobalReactionConfig.seed = seed
             var config = GlobalReactionConfig
-            print(GlobalReactionConfig.noiseScale)
+            //print(GlobalReactionConfig.noiseScale)
             
             let seedBuffer = commandBuffer.device.makeBuffer(bytes: &config, length: MemoryLayout<ReactionConfig>.stride, options: [])
 
@@ -274,6 +275,7 @@ class Renderer: NSObject, MTKViewDelegate {
     let reaction: BzReaction
     var pipelineState: MTLRenderPipelineState!
     let samplerState: MTLSamplerState
+    let experimentManager: ExperimentManager
     override init() {
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
         // Set your shaders in the pipeline
@@ -297,6 +299,13 @@ class Renderer: NSObject, MTKViewDelegate {
         samplerDescriptor.tAddressMode = .clampToEdge
 
         samplerState = MetalService.shared!.device.makeSamplerState(descriptor: samplerDescriptor)!
+        
+
+        experimentManager = ExperimentManager(start: SIMD2<UInt32>(105, 85), end: SIMD2<UInt32>(188, 150), device: MetalService.shared!.device)
+    }
+    
+    static func getImageCoords(x: Float, y: Float) -> SIMD2<Float> {
+        return SIMD2<Float>(x/Float(MetalService.shared!.texture1!.width),y/Float(MetalService.shared!.texture1!.height))
     }
     
     func startReaction() {
@@ -309,6 +318,8 @@ class Renderer: NSObject, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
+        experimentManager.startExperimentIfNeeded()
+
         brush.draw()
         guard let drawable = view.currentDrawable else { return }
 
@@ -334,9 +345,12 @@ class Renderer: NSObject, MTKViewDelegate {
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: quadVertices.count)
             renderEncoder.endEncoding()
             
+            experimentManager.checkAndEndExperimentIfNeeded(texture: MetalService.shared!.texture1!)
             commandBuffer.present(drawable)
         }
         commandBuffer.commit()
+        
+
 //        commandBuffer.waitUntilCompleted()
     }
 

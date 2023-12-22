@@ -57,7 +57,7 @@ kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]]
         float noise = gaussianNoise(0, config.noiseScale * 5, config.seed);
 //        float phi_diff = phi_passive - phi_active;
         // phi is either phi_active or phi_passive
-        float phi_noise = phi + noise;
+        float phi_noise = phi;
         phi_noise = clamp(phi_noise, phi_active, phi_passive);
         float du = ((1 / eps) * (u - (u * u) - ((f * v) + phi_noise) * ((u - q) / (u + q))) + Du * uLaplacian);
         float dv = (u - v);
