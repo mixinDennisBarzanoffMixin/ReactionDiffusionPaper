@@ -17,6 +17,9 @@
 		CA7E29C02B05341C00ED378D /* ReactionDiffusionSimulationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29BF2B05341C00ED378D /* ReactionDiffusionSimulationTests.swift */; };
 		CA7E29CA2B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29C92B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift */; };
 		CA7E29CC2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7E29CB2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift */; };
+		CAB242752B367C4A005AB88F /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAB242742B367C4A005AB88F /* Util.swift */; };
+		CAB242772B367EF3005AB88F /* endFlag.png in Resources */ = {isa = PBXBuildFile; fileRef = CAB242762B367EF3005AB88F /* endFlag.png */; };
+		CAB242792B367F3E005AB88F /* startFlag.png in Resources */ = {isa = PBXBuildFile; fileRef = CAB242782B367F3E005AB88F /* startFlag.png */; };
 		CAB9BD122B118DF000D1AE44 /* BZ reaction.metal in Sources */ = {isa = PBXBuildFile; fileRef = CAB9BD112B118DF000D1AE44 /* BZ reaction.metal */; };
 		CAFDAD142B133C8B00035DAA /* texture.metal in Sources */ = {isa = PBXBuildFile; fileRef = CAFDAD132B133C8B00035DAA /* texture.metal */; };
 		CAFDAD162B1390B600035DAA /* brush.metal in Sources */ = {isa = PBXBuildFile; fileRef = CAFDAD152B1390B600035DAA /* brush.metal */; };
@@ -55,6 +58,9 @@
 		CA7E29C52B05341C00ED378D /* ReactionDiffusionSimulationUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReactionDiffusionSimulationUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA7E29C92B05341C00ED378D /* ReactionDiffusionSimulationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDiffusionSimulationUITests.swift; sourceTree = "<group>"; };
 		CA7E29CB2B05341C00ED378D /* ReactionDiffusionSimulationUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDiffusionSimulationUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		CAB242742B367C4A005AB88F /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		CAB242762B367EF3005AB88F /* endFlag.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = endFlag.png; sourceTree = "<group>"; };
+		CAB242782B367F3E005AB88F /* startFlag.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = startFlag.png; sourceTree = "<group>"; };
 		CAB9BD112B118DF000D1AE44 /* BZ reaction.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = "BZ reaction.metal"; sourceTree = "<group>"; };
 		CAFDAD132B133C8B00035DAA /* texture.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = texture.metal; sourceTree = "<group>"; };
 		CAFDAD152B1390B600035DAA /* brush.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = brush.metal; sourceTree = "<group>"; };
@@ -108,6 +114,8 @@
 		CA7E29AC2B05341A00ED378D /* ReactionDiffusionSimulation */ = {
 			isa = PBXGroup;
 			children = (
+				CAB242782B367F3E005AB88F /* startFlag.png */,
+				CAB242762B367EF3005AB88F /* endFlag.png */,
 				CA2FD3D82B235484003CF800 /* circuit2.png */,
 				CA7E29AD2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift */,
 				CA7E29AF2B05341A00ED378D /* ContentView.swift */,
@@ -120,6 +128,7 @@
 				CA5C735E2B35BB1E00A30C5F /* sampler.metal */,
 				CA5C73602B35BB6100A30C5F /* common.h */,
 				CA5C73612B35C39700A30C5F /* ExperimentManager.swift */,
+				CAB242742B367C4A005AB88F /* Util.swift */,
 			);
 			path = ReactionDiffusionSimulation;
 			sourceTree = "<group>";
@@ -255,6 +264,8 @@
 			files = (
 				CA7E29B52B05341C00ED378D /* Preview Assets.xcassets in Resources */,
 				CA7E29B22B05341C00ED378D /* Assets.xcassets in Resources */,
+				CAB242792B367F3E005AB88F /* startFlag.png in Resources */,
+				CAB242772B367EF3005AB88F /* endFlag.png in Resources */,
 				CA2FD3D92B235484003CF800 /* circuit2.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -283,6 +294,7 @@
 				CA5C73622B35C39700A30C5F /* ExperimentManager.swift in Sources */,
 				CA5C735F2B35BB1E00A30C5F /* sampler.metal in Sources */,
 				CAFDAD162B1390B600035DAA /* brush.metal in Sources */,
+				CAB242752B367C4A005AB88F /* Util.swift in Sources */,
 				CAB9BD122B118DF000D1AE44 /* BZ reaction.metal in Sources */,
 				CA7E29B02B05341A00ED378D /* ContentView.swift in Sources */,
 				CA7E29AE2B05341A00ED378D /* ReactionDiffusionSimulationApp.swift in Sources */,

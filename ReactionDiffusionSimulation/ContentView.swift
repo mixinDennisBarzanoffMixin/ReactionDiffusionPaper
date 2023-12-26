@@ -268,7 +268,7 @@ class BzReaction {
 
     }
 }
-
+     
 
 class Renderer: NSObject, MTKViewDelegate {
     let brush: BrushModifier
@@ -304,8 +304,13 @@ class Renderer: NSObject, MTKViewDelegate {
         experimentManager = ExperimentManager(start: SIMD2<UInt32>(105, 85), end: SIMD2<UInt32>(188, 150), device: MetalService.shared!.device)
     }
     
+//    static func getImageCoords(x: Float, y: Float) -> SIMD2<Float> {
+//        return SIMD2<Float>(x/Float(MetalService.shared!.texture1!.width),y/Float(MetalService.shared!.texture1!.height))
+//    }
     static func getImageCoords(x: Float, y: Float) -> SIMD2<Float> {
-        return SIMD2<Float>(x/Float(MetalService.shared!.texture1!.width),y/Float(MetalService.shared!.texture1!.height))
+        let nx = 2.0 * (x / Float(MetalService.shared!.texture1!.width)) - 1.0
+        let ny = 2.0 * (y / Float(MetalService.shared!.texture1!.height)) - 1.0
+        return SIMD2<Float>(nx, ny)
     }
     
     func startReaction() {
@@ -343,8 +348,10 @@ class Renderer: NSObject, MTKViewDelegate {
             renderEncoder.setFragmentSamplerState(samplerState, index: 0) // Set the sampler state here
 
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: quadVertices.count)
+            experimentManager.draw(encoder: renderEncoder, in: view)
+
             renderEncoder.endEncoding()
-            
+
             experimentManager.checkAndEndExperimentIfNeeded(texture: MetalService.shared!.texture1!)
             commandBuffer.present(drawable)
         }
