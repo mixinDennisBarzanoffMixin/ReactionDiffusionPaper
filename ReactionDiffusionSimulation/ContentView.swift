@@ -447,13 +447,23 @@ struct ContentView: View {
                                         guard let width = MetalService.shared!.texture1?.width else { return }
                                         guard let height = MetalService.shared!.texture1?.height else { return }
                                         let x = Int(location.x / geometry.size.width * CGFloat(width));
-                                        //                                    print(x)
                                         let y = Int(location.y / geometry.size.height * CGFloat(height));
                                         if x >= 0 && y >= 0 && x < width && y < height {
-                                            GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 2)
+                                            GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 5)
                                         }
                                     })
                             )
+                            .onTapGesture {
+                                let location = $0
+                                guard let width = MetalService.shared!.texture1?.width else { return }
+                                guard let height = MetalService.shared!.texture1?.height else { return }
+                                let x = Int(location.x / geometry.size.width * CGFloat(width));
+                                let y = Int(location.y / geometry.size.height * CGFloat(height));
+                                if x >= 0 && y >= 0 && x < width && y < height {
+                                    GlobalBrushState.setRadius(centerX: UInt32(x), centerY: UInt32(y), radius: 5)
+                                    // GlobalBrushState.addPulsingLocation(x, y)
+                                }
+                            }
                         
                     })
                 
@@ -464,9 +474,9 @@ struct ContentView: View {
             VStack {
                 Spacer()
                 HStack {
-                    ConfigView()
-                        .frame(maxWidth: mainGeometry.size.width / 3)
-                        .padding()
+//                    ConfigView()
+//                        .frame(maxWidth: mainGeometry.size.width / 3)
+//                        .padding()
                     Spacer()
                 }
             }
