@@ -15,7 +15,10 @@ constant float phi_active = 0.054f;
 constant float phi_passive = 0.0975f;
 constant float q = 0.002f;
 constant float Du = 0.45f;
-constant float dt = 0.0005f;
+constant float dt = 0.002f;
+
+constant float scaleFactor = 1/5.0f; // 5px/mm
+constant float lightHeight = 130; // 130mm
 
 constant float M_PI = 3.149516f;
 
@@ -38,36 +41,56 @@ float scale(float value, float minRange, float maxRange);
 kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]],
                        texture2d<float, access::read_write> output [[texture(1)]],
                        constant ReactionConfig& config [[buffer(0)]],
-                       uint2 gid [[thread_position_in_grid]]) {
-//    float4 res = float4(1.0f, 1.0f, 1.0f, 1.0f);
-//    output.write(res, gid);
-
-    // Check gid is within the boundaries of our data
+                       uint2 gid [[thread_position_in_grid]],
+                       device uint2* debugInputLocation [[buffer(1)]],
+                       device float* debugValue [[buffer(2)]]) {
     if (gid.x < input.get_width() && gid.y < input.get_height()) {
         // Get the value from texture
         float4 value = input.read(gid);
-            
+        uint2 center = uint2(input.get_width() / 2, input.get_height() / 2);
+        // Calculate the distance from the center using Pythagorean theorem
+        float dx = float(center.x) - gid.x;
+        float dy = float(center.y) - gid.y;
+
+        float distance = sqrt(dx * dx + dy * dy);
+
+        // Scale the distance from pixels to mm using the scaling factor (px/mm)
+        float scaledDistance = distance * scaleFactor;
+
+        // Calculate the illumination percentage based on the distance
+        float illumination = 1.0f / sqrt(1.0f + pow(scaledDistance / lightHeight, 2.0f));
+        
         // Perform your computations...
         float u = value.r;
         float v = value.g;
+        
+        // Calculate phi based on illumination; phi is phi_active when there's light (i.e., illumination is low)
         float phi = scale(1 - value.b, phi_passive, phi_active);
-//        float phi = phi_active;
+        if (value.b == 1) { 
+            // we can only add less or more light to the passive component,
+            // the active is always protected from light
+//            illumination = 0.5;
+            phi = scale(illumination, phi_active, phi_passive);
+        }
+        
+        // set debug values
+        if (gid.x == debugInputLocation->x && gid.y == debugInputLocation->y) {
+            *debugValue =  illumination;
+        }
+        
+        // Perform the reaction-diffusion computation
         float uLaplacian = laplacian(input, gid, u);
         
-        float noise = gaussianNoise(0, config.noiseScale * 5, config.seed);
-//        float phi_diff = phi_passive - phi_active;
-        // phi is either phi_active or phi_passive
-        float phi_noise = phi;
-        phi_noise = clamp(phi_noise, phi_active, phi_passive);
-        float du = ((1 / eps) * (u - (u * u) - ((f * v) + phi_noise) * ((u - q) / (u + q))) + Du * uLaplacian);
+        float du = ((1 / eps) * (u - (u * u) - ((f * v) + phi) * ((u - q) / (u + q))) + Du * uLaplacian);
         float dv = (u - v);
-
+        
         float newU = clamp(u + (du * dt), 0.0f, 1.0f);
         float newV = clamp(v + (dv * dt), 0.0f, 1.0f);
 
+        // Combine the computed values into a new color
         float4 result = float4(newU, newV, value.b, 1.0f);
 
-        // Write the result to texture
+        // Write the result to the output texture
         output.write(result, gid);
     }
 }

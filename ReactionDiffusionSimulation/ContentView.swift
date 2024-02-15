@@ -9,11 +9,13 @@ import simd
 import MetalPerformanceShaders
 
 
+var globalDebugValue: Float = 0.0
 
 struct BrushState {
     var color: float4 = [1, 0, 0, 1]
-    var center: uint2 = [50, 50]
+    var center: uint2?
     var radius: UInt32 = 10
+    var pulsingLocations: [CGPoint] = []
     var enabled = true
     
     mutating func setRadius(centerX: UInt32, centerY: UInt32, radius: UInt32) {
@@ -21,6 +23,20 @@ struct BrushState {
         self.radius = radius
         self.enabled = true
     }
+
+//    mutating func addPulsingLocation(_ x: UInt32, y: UInt32) {
+//        // Check if location is already in the list
+//        for existingLocation in pulsingLocations {
+//            let distance = sqrt(pow(existingLocation.x - x, 2) + pow(existingLocation.y - y, 2))
+//            if CGFloat(radius) > distance {
+//                // Location is close to an existing location, remove the existing location
+//                pulsingLocations.removeAll { $0 == existingLocation }
+//                return
+//            }
+//        }
+//        // Location is not in the list, add it
+//        pulsingLocations.append(CGPoint { x: x, y: y })
+//    }
     
 }
 
@@ -236,6 +252,19 @@ class BzReaction {
             //print(GlobalReactionConfig.noiseScale)
             
             let seedBuffer = commandBuffer.device.makeBuffer(bytes: &config, length: MemoryLayout<ReactionConfig>.stride, options: [])
+            let x = GlobalBrushState.center?.x ?? 0;
+            let y = GlobalBrushState.center?.y ?? 0;
+            var debugInputLocation = SIMD2<UInt32>(x: UInt32(x), y: UInt32(y)) // Modify as per your requirement
+            var debugValue: Float = 0.0
+
+            let debugInputBuffer = commandBuffer.device.makeBuffer(bytes: &debugInputLocation,
+                                                                   length: MemoryLayout<SIMD2<UInt32>>.size,
+                                                                   options: []);
+            let debugValueBuffer = commandBuffer.device.makeBuffer(length: MemoryLayout<Float>.size,
+                                                                   options: [])
+
+            commandEncoder.setBuffer(debugInputBuffer, offset: 0, index: 1)
+            commandEncoder.setBuffer(debugValueBuffer, offset: 0, index: 2)
 
 //            print("hashes")
 //            print(texture1.hash)
@@ -256,7 +285,13 @@ class BzReaction {
             commandEncoder.endEncoding()
             commandEncoder.updateFence(MetalService.shared!.computeFence!)
 //            commandEncoder.waitForFence(MetalService.shared!.renderFence)
-            
+            commandBuffer.addCompletedHandler{ _ in
+                let debugOutput = debugValueBuffer?.contents().assumingMemoryBound(to: Float.self)
+                guard debugOutput != nil else {return}
+                debugValue = debugOutput!.pointee
+                globalDebugValue = debugValue
+                print("Debug Value: \(debugValue)")
+            }
             commandBuffer.commit()
             
             
@@ -268,7 +303,6 @@ class BzReaction {
 
     }
 }
-     
 
 class Renderer: NSObject, MTKViewDelegate {
     let brush: BrushModifier
@@ -323,7 +357,7 @@ class Renderer: NSObject, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
-        experimentManager.startExperimentIfNeeded()
+        //experimentManager.startExperimentIfNeeded()
 
         brush.draw()
         guard let drawable = view.currentDrawable else { return }
@@ -432,6 +466,7 @@ struct ContentView: View {
         self.renderer?.startReaction()
 
     }
+
     var body: some View {
         GeometryReader { mainGeometry in  // 2
             ZStack {
