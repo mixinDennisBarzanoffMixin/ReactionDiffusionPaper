@@ -20,15 +20,19 @@ class ExperimentManager {
     private var device: MTLDevice
     private var experimentHasStarted = false
     private var experimentEnabled = true
-    let cooldownDuration: TimeInterval = 2.0
+    let cooldownDuration: DispatchTimeInterval = DispatchTimeInterval.seconds(2)
 
-    private var cooldownStartTime: Date?
+    private var cooldownStartTime: DispatchTime?
 
     var flagStartTexture: MTLTexture?
     var flagEndTexture: MTLTexture?
 
+    private var width: UInt32
+    private var height: UInt32
 
-    init(start: SIMD2<UInt32>, end: SIMD2<UInt32>, device: MTLDevice) {
+    init(start: SIMD2<UInt32>, end: SIMD2<UInt32>, width: UInt32, height: UInt32, device: MTLDevice) {
+        self.width = width
+        self.height = height
         self.startPosition = start
         self.endPosition = end
         self.device = device
@@ -57,21 +61,49 @@ class ExperimentManager {
             fatalError("Invalid state: experiment started, but not enabled");
         }
     }
+    private var tickCounter: Int = 0
     
-    func startExperimentIfNeeded() {
-        validateState();
+    func tick() {
+        if !experimentHasStarted { return }
+
+        tickCounter += 1
+    }
+    
+    func inCooldown(currentTime: DispatchTime) -> Bool {
+
         if let cooldownStartTime = cooldownStartTime {
-            if Date().timeIntervalSince(cooldownStartTime) < cooldownDuration {
-                return
+            //print("Cooldown start time exists")
+            let cooldownEndTimeAfterStart = cooldownStartTime.advanced(by: cooldownDuration)
+            //print("Cooldown end time after start: \(cooldownEndTimeAfterStart)")
+            let cooldownEndTimeAfterEnd = endTime?.advanced(by: cooldownDuration)
+            //print("Cooldown end time after end: \(String(describing: cooldownEndTimeAfterEnd))")
+            if currentTime < cooldownEndTimeAfterStart {
+//                print("Current time is before cooldown end time after start")
+                return true
+            } else if cooldownEndTimeAfterEnd != nil && currentTime < cooldownEndTimeAfterEnd! {
+//                print("Current time is before cooldown end time after end")
+                return true
             }
         }
-        // Irrespective of what the above condition says, the cooldown time is definitely over once we get here.
-        cooldownStartTime = nil
+        return false
+    }
+    
+    func startExperimentIfNeeded() {
+        let currentTime = DispatchTime.now()
+        if self.inCooldown(currentTime: currentTime) { return }
+        validateState();
+        //print("Checking cooldown conditions")
+
+//        print("No cooldown conditions met")
 
         // Only start the experiment if it hasn't already begun
         guard !experimentHasStarted else { return }
+        startTime = nil
+        endTime = nil
+        cooldownStartTime = DispatchTime.now()
+
         // Set the global brush state
-        GlobalBrushState.center = startPosition
+        GlobalBrushState.center = SIMD2<UInt32>(startPosition.x, height - startPosition.y)
         GlobalBrushState.enabled = true
         experimentHasStarted = true
         startTime = DispatchTime.now()
@@ -81,41 +113,42 @@ class ExperimentManager {
         validateState();
         guard experimentHasStarted else { return }
         
-        let color = sampleColor(position: endPosition, texture: texture)
+        // Inverting Y axis to match coordinate system used elsewhere
+        let invertedYPosition = SIMD2<UInt32>(endPosition.x, height - endPosition.y)
+        let color = sampleColor(position: invertedYPosition, texture: texture)
         
         // Check if wave has arrived
         if isWaveColor(color) {
             endTime = DispatchTime.now()
-                
-            if let start = startTime, let end = endTime {
-                // Calculate execution time
-                let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
-                let timeInterval = Double(nanoTime) / 1_000_000_000
-                print("Execution time: \(String(format: "%.3f",timeInterval)) sec")
-
-                // Reset the experiment state
-                resetExperiment()
-            }
+//            print("Ending experiment")
+            endExperiment(texture: texture)
         }
-    }
-
-    private func resetExperiment() {
-        experimentHasStarted = false
-        startTime = nil
-        endTime = nil
-        cooldownStartTime = Date()
     }
 
 
     func endExperiment(texture: MTLTexture) {
-        let colorEnd = sampleColor(position: endPosition, texture: texture)
+        // Inverting Y axis to match coordinate system used elsewhere
+        let invertedEndPosition = SIMD2<UInt32>(endPosition.x, height - endPosition.y)
+        let colorEnd = sampleColor(position: invertedEndPosition, texture: texture)
         
         // If the color signifies the end of the wave and the timer has started, stop the timer
         if isWaveColor(colorEnd), let startTime = self.startTime {
             self.endTime = DispatchTime.now()
-            calculateTimeDifference(startTime: startTime, endTime: self.endTime)
+            adjustTicksForAnimationSpeed()
             self.startTime = nil
+            self.tickCounter = 0
+            self.experimentHasStarted = false; // will start it again
         }
+    }
+    
+    private let animationSpeedFactor: Double = 0.0015/0.001 // Since 0.0002/0.001 = 2, to adjust for slower animation speed. Comes from the BZ reaction code.
+    // dt = 0.0002
+    
+    private func adjustTicksForAnimationSpeed() {
+//        print("Unadjusted ticks: \(tickCounter)")
+//        print("Animation speed factor: \(animationSpeedFactor)")
+        let adjustedTicks = Double(tickCounter) * animationSpeedFactor
+        print("Adjusted ticks for animation speed: \(adjustedTicks)")
     }
     private func sampleColor(position: SIMD2<UInt32>, texture: MTLTexture) -> SIMD4<Float> {
         let commandBuffer = commandQueue.makeCommandBuffer()!
@@ -157,12 +190,6 @@ class ExperimentManager {
         return color.x > 0.2;
     }
     
-    private func calculateTimeDifference(startTime: DispatchTime, endTime: DispatchTime?) {
-        guard let endTime = endTime else { return }
-        let nanoTime = endTime.uptimeNanoseconds - startTime.uptimeNanoseconds
-        let timeInterval = Double(nanoTime) / 1_000_000_000
-        print("Execution time: \(String(format: "%.3f",timeInterval)) sec")
-    }
     private func createQuadVertices(center: SIMD2<Float>, size: SIMD2<Float> = SIMD2<Float>(0.02, 0.02)) -> [VertexOut] {
         let halfSize = size / 2.0
 

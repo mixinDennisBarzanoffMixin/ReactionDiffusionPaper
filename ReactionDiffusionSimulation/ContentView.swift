@@ -225,8 +225,10 @@ struct VertexOut {
 class BzReaction {
     var commandQueue: MTLCommandQueue
     let pipelineState: MTLComputePipelineState
-
-    init() {
+    var experimentManager: ExperimentManager
+    // We need this to track the tick() because this code controls the tick speed
+    init(experimentManager: ExperimentManager) {
+        self.experimentManager = experimentManager
         self.commandQueue = MetalService.shared!.commandQueue
         
         let defaultLibrary = MetalService.shared!.device.makeDefaultLibrary()
@@ -237,7 +239,10 @@ class BzReaction {
     }
     func compute(iteration: Int) {
 //        return;
+
         usleep(30)
+        experimentManager.tick()
+
         let texture1 = MetalService.shared!.texture1!
         let texture2 = MetalService.shared!.texture2!
         if let commandBuffer = self.commandQueue.makeCommandBuffer(),
@@ -290,15 +295,12 @@ class BzReaction {
                 guard debugOutput != nil else {return}
                 debugValue = debugOutput!.pointee
                 globalDebugValue = debugValue
-                print("Debug Value: \(debugValue)")
+//                print("Debug Value: \(debugValue)")
             }
             commandBuffer.commit()
             
             
             // both the rendering and the computation are finished
-            
-            
-            
         }
 
     }
@@ -320,7 +322,6 @@ class Renderer: NSObject, MTKViewDelegate {
         pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
         
         self.brush = BrushModifier()!
-        self.reaction = BzReaction()
 
         // Compile the pipeline state
         pipelineState = try! MetalService.shared!.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
@@ -334,8 +335,10 @@ class Renderer: NSObject, MTKViewDelegate {
 
         samplerState = MetalService.shared!.device.makeSamplerState(descriptor: samplerDescriptor)!
         
-
-        experimentManager = ExperimentManager(start: SIMD2<UInt32>(105, 85), end: SIMD2<UInt32>(188, 150), device: MetalService.shared!.device)
+        let width = MetalService.shared!.texture1!.width;
+        let height = MetalService.shared!.texture1!.height;
+        experimentManager = ExperimentManager(start: SIMD2<UInt32>(210, 157), end: SIMD2<UInt32>(137, 157), width: UInt32(width), height: UInt32(height), device: MetalService.shared!.device)
+        self.reaction = BzReaction(experimentManager: self.experimentManager)
     }
     
 //    static func getImageCoords(x: Float, y: Float) -> SIMD2<Float> {
@@ -357,7 +360,7 @@ class Renderer: NSObject, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
-        //experimentManager.startExperimentIfNeeded()
+        experimentManager.startExperimentIfNeeded()
 
         brush.draw()
         guard let drawable = view.currentDrawable else { return }
@@ -386,11 +389,11 @@ class Renderer: NSObject, MTKViewDelegate {
 
             renderEncoder.endEncoding()
 
-            experimentManager.checkAndEndExperimentIfNeeded(texture: MetalService.shared!.texture1!)
             commandBuffer.present(drawable)
         }
         commandBuffer.commit()
-        
+        experimentManager.checkAndEndExperimentIfNeeded(texture: MetalService.shared!.texture1!)
+
 
 //        commandBuffer.waitUntilCompleted()
     }

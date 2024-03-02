@@ -12,10 +12,11 @@ using namespace metal;
 constant float eps = 0.0243f;
 constant float f = 1.4f;
 constant float phi_active = 0.054f;
-constant float phi_passive = 0.0975f;
+//constant float phi_passive = 0.0975f;
+constant float phi_passive = 0.08842f;
 constant float q = 0.002f;
 constant float Du = 0.45f;
-constant float dt = 0.002f;
+constant float dt = 0.0015f;
 
 constant float scaleFactor = 1/5.0f; // 5px/mm
 constant float lightHeight = 130; // 130mm
@@ -69,7 +70,7 @@ kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]]
         if (value.b == 1) { 
             // we can only add less or more light to the passive component,
             // the active is always protected from light
-//            illumination = 0.5;
+            illumination = 1;
             phi = scale(illumination, phi_active, phi_passive);
         }
         
