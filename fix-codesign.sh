@@ -1,0 +1,1 @@
+xattr -cr /Users/dennisbarzanoff/Library/Developer/Xcode/DerivedData/ReactionDiffusionSimulation-bpmywmubjsvbivdzmechuqjnaizs/Build/Products/Debug/ReactionDiffusionSimulation.app
