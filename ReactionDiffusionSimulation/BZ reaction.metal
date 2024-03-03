@@ -13,10 +13,10 @@ constant float eps = 0.0243f;
 constant float f = 1.4f;
 constant float phi_active = 0.054f;
 //constant float phi_passive = 0.0975f;
-constant float phi_passive = 0.08842f;
+//constant float phi_passive = 0.08842f;
 constant float q = 0.002f;
 constant float Du = 0.45f;
-constant float dt = 0.0015f;
+constant float dt = 0.001f;
 
 constant float scaleFactor = 1/5.0f; // 5px/mm
 constant float lightHeight = 130; // 130mm
@@ -31,6 +31,7 @@ struct Seed {
 struct ReactionConfig {
     Seed seed;
     float noiseScale;
+    float phi_passive;
 };
 
 
@@ -52,6 +53,7 @@ kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]]
         // Calculate the distance from the center using Pythagorean theorem
         float dx = float(center.x) - gid.x;
         float dy = float(center.y) - gid.y;
+        float phi_passive = config.phi_passive;
 
         float distance = sqrt(dx * dx + dy * dy);
 
@@ -76,7 +78,7 @@ kernel void bz_compute(texture2d<float, access::read_write> input [[texture(0)]]
         
         // set debug values
         if (gid.x == debugInputLocation->x && gid.y == debugInputLocation->y) {
-            *debugValue =  illumination;
+            *debugValue =  phi_passive;
         }
         
         // Perform the reaction-diffusion computation

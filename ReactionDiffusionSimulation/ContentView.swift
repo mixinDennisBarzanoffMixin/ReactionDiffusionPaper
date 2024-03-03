@@ -48,6 +48,7 @@ struct Seed {
 struct ReactionConfig {
     var seed: Seed = Seed()
     var noiseScale: Float32 = 0;
+    var phi_passive: Float32 = 0.0975; // will change before experiments
 }
 
 var GlobalReactionConfig = ReactionConfig()
@@ -226,8 +227,10 @@ class BzReaction {
     var commandQueue: MTLCommandQueue
     let pipelineState: MTLComputePipelineState
     var experimentManager: ExperimentManager
+    var phiPassive: Float
     // We need this to track the tick() because this code controls the tick speed
-    init(experimentManager: ExperimentManager) {
+    init(experimentManager: ExperimentManager, phiPassive: Float) {
+        self.phiPassive = phiPassive
         self.experimentManager = experimentManager
         self.commandQueue = MetalService.shared!.commandQueue
         
@@ -236,6 +239,9 @@ class BzReaction {
         let pipelineStateDescriptor = MTLComputePipelineDescriptor()
         pipelineStateDescriptor.computeFunction = kernelFunction
         self.pipelineState = try! MetalService.shared!.device.makeComputePipelineState(descriptor: pipelineStateDescriptor, options: [], reflection: nil);
+    }
+    func updatePhiPassive(phiPassive: Float) {
+        self.phiPassive = phiPassive
     }
     func compute(iteration: Int) {
 //        return;
@@ -337,11 +343,43 @@ class Renderer: NSObject, MTKViewDelegate {
         
         let width = MetalService.shared!.texture1!.width;
         let height = MetalService.shared!.texture1!.height;
-        experimentManager = ExperimentManager(start: SIMD2<UInt32>(210, 157), end: SIMD2<UInt32>(137, 157), width: UInt32(width), height: UInt32(height), device: MetalService.shared!.device)
-        self.reaction = BzReaction(experimentManager: self.experimentManager)
+        let phiPassiveInitial: Float = 0.0975
+        let numAttempts: Int = 30
+        let rangePercentage: Float = 0.20  // ±20%
+
+        // Calculate the value range as a percentage of the initial value
+        let valueRange = phiPassiveInitial * rangePercentage
+
+        // Calculate the total range (from -10% to +10% of the initial value)
+        let totalRange = 2 * valueRange
+
+        // Calculate the interval size for 30 attempts within this total range
+        let intervalSize = totalRange / Float(numAttempts - 1)
+
+        // Example usage
+        print("Interval Size: \(intervalSize)")
+
+        let tempExperimentManager = ExperimentManager(
+            start: SIMD2<UInt32>(210, 157),
+            end: SIMD2<UInt32>(137, 157),
+            width: UInt32(width),
+            height: UInt32(height),
+            device: MetalService.shared!.device,
+            variable: 0.1008385,
+            interval: Float(intervalSize),
+            points: numAttempts,
+            callback: nil) // Temporarily set callback to nil to break the circular dependency
+
+        self.reaction = BzReaction(experimentManager: tempExperimentManager, phiPassive: phiPassiveInitial)
+
+        tempExperimentManager.variableUpdateCallback = { newValue in
+            GlobalReactionConfig.phi_passive = newValue
+        }
+
+        self.experimentManager = tempExperimentManager
     }
     
-//    static func getImageCoords(x: Float, y: Float) -> SIMD2<Float> {
+//    static func getImageCoords(x: Float, y: Float) -> SIMD2<Float> {Â
 //        return SIMD2<Float>(x/Float(MetalService.shared!.texture1!.width),y/Float(MetalService.shared!.texture1!.height))
 //    }
     static func getImageCoords(x: Float, y: Float) -> SIMD2<Float> {
@@ -481,6 +519,8 @@ struct ContentView: View {
                             .gesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged({ gesture in
+//                                        self.renderer?.experimentManager.forceExperimentStart();
+//                                        return;
                                         let location = gesture.location
                                         guard let width = MetalService.shared!.texture1?.width else { return }
                                         guard let height = MetalService.shared!.texture1?.height else { return }
@@ -492,6 +532,8 @@ struct ContentView: View {
                                     })
                             )
                             .onTapGesture {
+//                                self.renderer?.experimentManager.forceExperimentStart();
+//                                return;
                                 let location = $0
                                 guard let width = MetalService.shared!.texture1?.width else { return }
                                 guard let height = MetalService.shared!.texture1?.height else { return }

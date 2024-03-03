@@ -20,7 +20,7 @@ class ExperimentManager {
     private var device: MTLDevice
     private var experimentHasStarted = false
     private var experimentEnabled = true
-    let cooldownDuration: DispatchTimeInterval = DispatchTimeInterval.seconds(2)
+    let cooldownDuration: DispatchTimeInterval = DispatchTimeInterval.seconds(1)
 
     private var cooldownStartTime: DispatchTime?
 
@@ -30,12 +30,25 @@ class ExperimentManager {
     private var width: UInt32
     private var height: UInt32
 
-    init(start: SIMD2<UInt32>, end: SIMD2<UInt32>, width: UInt32, height: UInt32, device: MTLDevice) {
+    private var experimentVariable: Float
+    private var experimentVariableInitial: Float
+    private var experimentVariableInterval: Float
+    private var numberOfPoints: Int
+    private var currentRun: Int = 0
+    private var tickCounts: [Int] = []
+     var variableUpdateCallback: ((Float) -> Void)?
+
+    init(start: SIMD2<UInt32>, end: SIMD2<UInt32>, width: UInt32, height: UInt32, device: MTLDevice, variable: Float, interval: Float, points: Int, callback: ((Float) -> Void)? = nil) {
         self.width = width
         self.height = height
         self.startPosition = start
         self.endPosition = end
         self.device = device
+        self.experimentVariable = variable
+        self.experimentVariableInitial = variable
+        self.experimentVariableInterval = interval
+        self.numberOfPoints = points
+        self.variableUpdateCallback = callback
         guard let library = device.makeDefaultLibrary(),
               let function = library.makeFunction(name: "samplingShader") else {
             fatalError("Unable to create the compute state")
@@ -54,10 +67,12 @@ class ExperimentManager {
         flagEndTexture = loadTexture(imageName: "endFlag", ext: "png")
 
     }
-    
+    private var currentExperimentIndex: Int = 0
+    private var currentIterationIndex: Int = 0
+        
     func validateState() {
         // can't have started and not enabled
-        guard (experimentEnabled || !experimentHasStarted) else {
+        if experimentHasStarted && !experimentEnabled {
             fatalError("Invalid state: experiment started, but not enabled");
         }
     }
@@ -89,20 +104,38 @@ class ExperimentManager {
     }
     
     func startExperimentIfNeeded() {
+        guard experimentEnabled else { return }
         let currentTime = DispatchTime.now()
         if self.inCooldown(currentTime: currentTime) { return }
         validateState();
         //print("Checking cooldown conditions")
 
 //        print("No cooldown conditions met")
-
+        
         // Only start the experiment if it hasn't already begun
-        guard !experimentHasStarted else { return }
+        forceExperimentStart()
+    }
+    
+    func forceExperimentStart() {
+
+        if let variableUpdateCallback = variableUpdateCallback {
+            let midpointAdjustment = (Float(numberOfPoints) / 2) * experimentVariableInterval
+
+            // Determine the direction and amount of adjustment based on the currentExperimentIndex
+            // This example assumes you want to increment from the midpoint
+            let adjustment = Float(currentExperimentIndex - (numberOfPoints / 2)) * experimentVariableInterval
+            
+            experimentVariable = experimentVariableInitial + adjustment
+
+            // Notify about the variable change
+            variableUpdateCallback(experimentVariable)
+
+        }
+
         startTime = nil
         endTime = nil
         cooldownStartTime = DispatchTime.now()
-
-        // Set the global brush state
+        tickCounter = 0
         GlobalBrushState.center = SIMD2<UInt32>(startPosition.x, height - startPosition.y)
         GlobalBrushState.enabled = true
         experimentHasStarted = true
@@ -110,7 +143,7 @@ class ExperimentManager {
     }
     
     func checkAndEndExperimentIfNeeded(texture: MTLTexture) {
-        validateState();
+        validateState()
         guard experimentHasStarted else { return }
         
         // Inverting Y axis to match coordinate system used elsewhere
@@ -120,8 +153,28 @@ class ExperimentManager {
         // Check if wave has arrived
         if isWaveColor(color) {
             endTime = DispatchTime.now()
-//            print("Ending experiment")
+            //print("Ending experiment")
             endExperiment(texture: texture)
+            
+            // Increment the iteration index
+            currentIterationIndex += 1
+
+            // Check if all iterations for the current experiment are done
+            if currentIterationIndex >= 7 { // Assuming 5 iterations per experiment
+                currentIterationIndex = 0
+                currentExperimentIndex += 1
+                print("Run \(currentExperimentIndex) with phi_passive = \(self.experimentVariable) ended")
+
+                // Check if all experiments are done
+                if currentExperimentIndex >= numberOfPoints {
+                    // All experiments completed
+                    // Reset or handle completion
+                    currentExperimentIndex = 0 // Reset or set a flag indicating completion
+                    // Optionally, handle the completion of all experiments here
+                    print("Experiment finished")
+                    experimentEnabled = false
+                }
+            }
         }
     }
 
@@ -141,14 +194,14 @@ class ExperimentManager {
         }
     }
     
-    private let animationSpeedFactor: Double = 0.0015/0.001 // Since 0.0002/0.001 = 2, to adjust for slower animation speed. Comes from the BZ reaction code.
+//    private let animationSpeedFactor: Double = 0.001 // Since 0.0002/0.001 = 2, to adjust for slower animation speed. Comes from the BZ reaction code.
     // dt = 0.0002
     
     private func adjustTicksForAnimationSpeed() {
 //        print("Unadjusted ticks: \(tickCounter)")
 //        print("Animation speed factor: \(animationSpeedFactor)")
-        let adjustedTicks = Double(tickCounter) * animationSpeedFactor
-        print("Adjusted ticks for animation speed: \(adjustedTicks)")
+        let adjustedTicks = Int(tickCounter)
+        print("Propagation time: \(adjustedTicks) ticks")
     }
     private func sampleColor(position: SIMD2<UInt32>, texture: MTLTexture) -> SIMD4<Float> {
         let commandBuffer = commandQueue.makeCommandBuffer()!
@@ -229,3 +282,4 @@ class ExperimentManager {
     }
 
 }
+
