@@ -246,7 +246,7 @@ class BzReaction {
     func compute(iteration: Int) {
 //        return;
 
-        usleep(30)
+        usleep(300)
         experimentManager.tick()
 
         let texture1 = MetalService.shared!.texture1!
@@ -343,21 +343,29 @@ class Renderer: NSObject, MTKViewDelegate {
         
         let width = MetalService.shared!.texture1!.width;
         let height = MetalService.shared!.texture1!.height;
-        let phiPassiveInitial: Float = 0.0975
-        let numAttempts: Int = 30
-        let rangePercentage: Float = 0.20  // ±20%
+//        let variables: [Float] = [
+////            0.0905069, 0.09141196, 0.09232608, 0.09324935, 0.09418184, 0.09512366,
+////            0.09555, // Explicit inclusion of phi_min for clarity
+////            0.09578887, 0.09602835, 0.09626842, 0.09650909, 0.09675036, 0.09699224,
+////            0.09723472, 0.09747781, 0.0977215,
+////            0.106127, // Explicit inclusion of phi_max for clarity
+////            0.10639232, 0.1066583, 0.10692494, 0.10719226, 0.10746024, 0.10772889,
+////            0.10799821, 0.10826821, 0.10853888
+//            0.106127
+//        ]
+//        let variables: [Float] = [
+//            0.10559636, 0.10570249, 0.10580862, 0.10591475, 0.10602087,
+//            0.106127,   // The central focus value
+//            0.10623313, 0.10633925, 0.10644538, 0.10655151, 0.10665764
+//        ]
 
-        // Calculate the value range as a percentage of the initial value
-        let valueRange = phiPassiveInitial * rangePercentage
+        let variables: [Float] = [
+//            0.0975,
+            0.106129965120
+//            0.106120, 0.106121, 0.106122, 0.106123, 0.106124, 0.106125, 0.106126, 0.106127, 0.106128, 0.106129
+            
+        ]
 
-        // Calculate the total range (from -10% to +10% of the initial value)
-        let totalRange = 2 * valueRange
-
-        // Calculate the interval size for 30 attempts within this total range
-        let intervalSize = totalRange / Float(numAttempts - 1)
-
-        // Example usage
-        print("Interval Size: \(intervalSize)")
 
         let tempExperimentManager = ExperimentManager(
             start: SIMD2<UInt32>(210, 157),
@@ -365,12 +373,10 @@ class Renderer: NSObject, MTKViewDelegate {
             width: UInt32(width),
             height: UInt32(height),
             device: MetalService.shared!.device,
-            variable: 0.1008385,
-            interval: Float(intervalSize),
-            points: numAttempts,
+            variables: variables,
             callback: nil) // Temporarily set callback to nil to break the circular dependency
 
-        self.reaction = BzReaction(experimentManager: tempExperimentManager, phiPassive: phiPassiveInitial)
+        self.reaction = BzReaction(experimentManager: tempExperimentManager, phiPassive: variables[0])
 
         tempExperimentManager.variableUpdateCallback = { newValue in
             GlobalReactionConfig.phi_passive = newValue

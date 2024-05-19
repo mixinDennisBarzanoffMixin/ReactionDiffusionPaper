@@ -20,7 +20,8 @@ class ExperimentManager {
     private var device: MTLDevice
     private var experimentHasStarted = false
     private var experimentEnabled = true
-    let cooldownDuration: DispatchTimeInterval = DispatchTimeInterval.seconds(1)
+    private var variables: [Float]
+    let cooldownDuration: DispatchTimeInterval = DispatchTimeInterval.milliseconds(5000)
 
     private var cooldownStartTime: DispatchTime?
 
@@ -31,23 +32,18 @@ class ExperimentManager {
     private var height: UInt32
 
     private var experimentVariable: Float
-    private var experimentVariableInitial: Float
-    private var experimentVariableInterval: Float
-    private var numberOfPoints: Int
     private var currentRun: Int = 0
     private var tickCounts: [Int] = []
-     var variableUpdateCallback: ((Float) -> Void)?
+    var variableUpdateCallback: ((Float) -> Void)?
 
-    init(start: SIMD2<UInt32>, end: SIMD2<UInt32>, width: UInt32, height: UInt32, device: MTLDevice, variable: Float, interval: Float, points: Int, callback: ((Float) -> Void)? = nil) {
+    init(start: SIMD2<UInt32>, end: SIMD2<UInt32>, width: UInt32, height: UInt32, device: MTLDevice, variables: [Float], callback: ((Float) -> Void)? = nil) {
         self.width = width
         self.height = height
         self.startPosition = start
         self.endPosition = end
         self.device = device
-        self.experimentVariable = variable
-        self.experimentVariableInitial = variable
-        self.experimentVariableInterval = interval
-        self.numberOfPoints = points
+        self.experimentVariable = variables[0]
+        self.variables = variables
         self.variableUpdateCallback = callback
         guard let library = device.makeDefaultLibrary(),
               let function = library.makeFunction(name: "samplingShader") else {
@@ -117,15 +113,10 @@ class ExperimentManager {
     }
     
     func forceExperimentStart() {
+//        usleep(2000000)
 
         if let variableUpdateCallback = variableUpdateCallback {
-            let midpointAdjustment = (Float(numberOfPoints) / 2) * experimentVariableInterval
-
-            // Determine the direction and amount of adjustment based on the currentExperimentIndex
-            // This example assumes you want to increment from the midpoint
-            let adjustment = Float(currentExperimentIndex - (numberOfPoints / 2)) * experimentVariableInterval
-            
-            experimentVariable = experimentVariableInitial + adjustment
+            experimentVariable = self.variables[currentExperimentIndex]
 
             // Notify about the variable change
             variableUpdateCallback(experimentVariable)
@@ -166,7 +157,7 @@ class ExperimentManager {
                 print("Run \(currentExperimentIndex) with phi_passive = \(self.experimentVariable) ended")
 
                 // Check if all experiments are done
-                if currentExperimentIndex >= numberOfPoints {
+                if currentExperimentIndex >= self.variables.count {
                     // All experiments completed
                     // Reset or handle completion
                     currentExperimentIndex = 0 // Reset or set a flag indicating completion

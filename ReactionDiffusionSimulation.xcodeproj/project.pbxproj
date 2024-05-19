@@ -62,6 +62,7 @@
 		CAB242762B367EF3005AB88F /* endFlag.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = endFlag.png; sourceTree = "<group>"; };
 		CAB242782B367F3E005AB88F /* startFlag.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = startFlag.png; sourceTree = "<group>"; };
 		CAB9BD112B118DF000D1AE44 /* BZ reaction.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = "BZ reaction.metal"; sourceTree = "<group>"; };
+		CAED29E52B9352530018A6A1 /* fix-codesign.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "fix-codesign.sh"; sourceTree = "<group>"; };
 		CAFDAD132B133C8B00035DAA /* texture.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = texture.metal; sourceTree = "<group>"; };
 		CAFDAD152B1390B600035DAA /* brush.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = brush.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -94,6 +95,7 @@
 		CA7E29A12B05341A00ED378D = {
 			isa = PBXGroup;
 			children = (
+				CAED29E52B9352530018A6A1 /* fix-codesign.sh */,
 				CA7E29AC2B05341A00ED378D /* ReactionDiffusionSimulation */,
 				CA7E29BE2B05341C00ED378D /* ReactionDiffusionSimulationTests */,
 				CA7E29C82B05341C00ED378D /* ReactionDiffusionSimulationUITests */,
